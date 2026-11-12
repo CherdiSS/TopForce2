@@ -1,53 +1,56 @@
 <title>Фронт</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap">
 <style>
 /* Layout: one-screen app — status bar, map canvas that takes all free height, command panel at the bottom.
-   Single dark look, muted field-map palette: olive ground, slate water, dusty team colours. */
+   Look: daylight toy battlefield — fresh green ground, navy command panel, chunky pressable buttons. */
 :root{
   color-scheme:dark;
-  --bg:#15181c; --surface:#1c2026; --card:#262b33; --fg:#dfe2e6; --muted:#98a0ac;
-  --gold:#d8b860; --btn:#353c47; --buy:#3a6650; --up:#474a63; --atk:#85504a; --sel:#3d6585;
-  --blue:#6ea8d8; --red:#d9796f;
-  --font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --bg:#1b2a41; --surface:#213655; --card:#2b4770; --fg:#ffffff; --muted:#b5c6de;
+  --gold:#ffc93c; --btn:#4d74ad; --buy:#3fae5a; --up:#7b65cc; --atk:#e0563f; --sel:#f0a02a;
+  --blue:#3f8fe0; --red:#e2564a;
+  --font:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--bg);color:var(--fg);font-family:var(--font);overflow:hidden;touch-action:none}
+html,body{height:100%;background:var(--bg);color:var(--fg);font-family:var(--font);font-weight:700;overflow:hidden;touch-action:none}
 #app{display:flex;flex-direction:column;height:100%;max-width:900px;margin:0 auto}
 #top{display:flex;justify-content:space-between;align-items:center;padding-block:5px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  font-size:13px;background:var(--surface);gap:8px;font-variant-numeric:tabular-nums}
-#top b{color:var(--gold)}
-.coin{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);margin-right:5px;vertical-align:baseline}
-#inc{color:var(--muted)}
+  font-size:14px;background:var(--surface);gap:8px;font-variant-numeric:tabular-nums;border-bottom:2px solid rgba(0,0,0,.25)}
+#top b{color:var(--gold);font-weight:800}
+.coin{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--gold);box-shadow:inset 0 -2px 0 rgba(0,0,0,.25);margin-right:5px;vertical-align:-1px}
+#inc{color:var(--muted);font-size:12px}
 .tb{display:flex;gap:5px}
-.tb button{width:34px;padding:4px 0;font-size:11px}
+.tb button{width:36px;padding:5px 0 7px;font-size:11px}
 #wrap{flex:1;position:relative;min-height:0;overflow:hidden}
 canvas{display:block;touch-action:none;position:absolute;inset:0}
-#panel{background:var(--surface);display:grid;gap:6px;padding-block:6px;
+#panel{background:var(--surface);display:grid;gap:6px;padding-block:7px;border-top:2px solid rgba(255,255,255,.12);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.u{background:var(--card);border-radius:8px;padding:5px 4px;text-align:center;font-size:10px;color:var(--muted);min-width:0}
-.u .n{font-size:12px;color:var(--fg);font-weight:600;white-space:nowrap}
-button{font:inherit;color:var(--fg);background:var(--btn);border:0;border-radius:6px;padding:8px 4px;font-size:13px;width:100%;cursor:pointer;font-variant-numeric:tabular-nums}
-button:disabled{opacity:.35;cursor:default}
+.u{background:var(--card);border-radius:12px;padding:5px 4px 6px;text-align:center;font-size:10px;font-weight:600;color:var(--muted);min-width:0;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08)}
+.u .n{font-size:12.5px;color:var(--fg);font-weight:800;white-space:nowrap}
+button{font:inherit;font-weight:800;color:var(--fg);background:var(--btn);border:0;border-radius:10px;padding:7px 4px 9px;font-size:13px;width:100%;cursor:pointer;
+  font-variant-numeric:tabular-nums;box-shadow:inset 0 -3px 0 rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.22);text-shadow:0 1px 0 rgba(0,0,0,.3)}
+button:active:not(:disabled){transform:translateY(1px);box-shadow:inset 0 -1px 0 rgba(0,0,0,.28)}
+button:disabled{opacity:.42;cursor:default}
 button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
-button.buy{background:var(--buy);margin-top:4px;padding:7px 2px}
-button.up{background:var(--up);margin-top:4px;font-size:11px;padding:5px 2px}
-button.atk{background:var(--atk);font-weight:600}
-button.on{background:var(--sel);font-weight:600}
+button.buy{background:var(--buy);margin-top:4px;padding:6px 2px 8px}
+button.up{background:var(--up);margin-top:4px;font-size:11px;padding:4px 2px 6px}
+button.atk{background:var(--atk)}
+button.on{background:var(--sel)}
 .row2{display:grid;grid-template-columns:.8fr 1.2fr;gap:6px}
+.row2 button{font-size:12px;padding:5px 2px 7px;margin:0}
 .row6{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-.row6 button{font-size:11.5px;padding:8px 1px}
-.row2 button{font-size:12px;padding:6px 2px;margin:0}
-.row5{display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:6px}
-.row5 button{padding:6px 2px;font-size:12px}
-#ov{position:absolute;inset:0;background:rgba(14,16,19,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center;z-index:5;overflow:auto}
-#ov h1{font-size:24px;font-weight:650;letter-spacing:.02em}
-#ov p{font-size:12.5px;color:var(--muted);line-height:1.5;max-width:400px}
-#ov p b{color:var(--fg);font-weight:600}
+.row6 button{font-size:11.5px;padding:7px 1px 9px}
+.row5{display:grid;grid-template-columns:1.3fr repeat(5,1fr);gap:6px}
+.row5 button{padding:5px 2px 7px;font-size:12px}
+#ov{position:absolute;inset:0;background:rgba(22,36,60,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:18px;text-align:center;z-index:5;overflow:auto}
+#ov h1{font-size:28px;font-weight:800;letter-spacing:.02em;color:var(--gold);text-shadow:0 2px 0 rgba(0,0,0,.35)}
+#ov p{font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.45;max-width:410px}
+#ov p b{color:var(--fg);font-weight:800}
 #ov .d{display:flex;gap:8px;width:100%;max-width:380px}
-#ov .lbl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-top:4px}
-#ov .m button{font-size:12px;padding:7px 2px}
+#ov .lbl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-top:3px}
+#ov .m button{font-size:12px;padding:6px 2px 8px}
 </style>
 
 <div id="app">
@@ -61,9 +64,9 @@ button.on{background:var(--sel);font-weight:600}
     <canvas id="c"></canvas>
     <div id="ov">
       <h1>Фронт</h1>
-      <p id="ovp"><b>Палец по карте</b> двигает камеру, два пальца — зум. <b>Тап по своему</b> выделяет его, двойной тап — всех таких на экране. <b>Удержи палец и тяни</b> (или кнопка «Рамка») — выделение рамкой. Кнопки ●◆■▲ оставляют в выделении один род войск, «½» — половину. <b>Тап по земле</b> отправляет выделенных; «Марш» — идти не ввязываясь в бой.<br>
-      Мышь: левая кнопка — рамка, правая — приказ и сдвиг карты, колесо — зум.<br>
-      Пехота дешёвая, <b>ПТ</b> жжёт танки, <b>танки</b> давят пехоту, <b>арта</b> бьёт издали, но вблизи беспомощна. Лес прикрывает, холм добавляет дальности, дорога ускоряет. Шахты дают доход, форпост — передовую точку выхода войск; у штаба и форпоста войска лечатся.</p>
+      <p id="ovp"><b>Палец по карте</b> двигает камеру, два пальца — зум. <b>Тап по своему</b> выделяет его, <b>удержи и тяни</b> (или «Рамка») — выделение рамкой, <b>тап по флажку сбора</b> — весь собранный там отряд. Кнопки ●◆■▲ оставляют один род войск, «½» — половину. <b>Тап по земле</b> отправляет выделенных.<br>
+      <b>★ Командир</b> — твой герой: враги роняют золото, он его подбирает и относит к штабу или форпосту. <b>База</b> открывает новые войска и разрешает их улучшать.<br>
+      <b>Тап по своему форпосту или штабу</b> — войска выходят оттуда. ПТ жжёт танки, танки давят пехоту, арта бьёт издали. Лес прикрывает, холм добавляет дальности, дорога ускоряет.</p>
       <div class="lbl">Карта</div>
       <div class="d m" id="maps">
         <button data-m="rand">Случай</button>
@@ -89,6 +92,7 @@ button.on{background:var(--sel);font-weight:600}
       <button data-f="at">◆</button>
       <button data-f="tank">■</button>
       <button data-f="art">▲</button>
+      <button data-f="hero">★</button>
     </div>
     <div class="row6">
       <button id="box">Рамка</button>
@@ -100,7 +104,7 @@ button.on{background:var(--sel);font-weight:600}
     </div>
     <div class="row2">
       <button id="amt">Закупка ×1</button>
-      <button id="eco" class="up">Экономика</button>
+      <button id="eco" class="up">База</button>
     </div>
   </div>
 </div>
@@ -121,19 +125,20 @@ const NB=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 
 // vs: damage multiplier against a target kind
 const T={
-  inf:{name:'Пехота',sym:'●',hint:'дёшево и много',hp:30,dmg:6,range:16,speed:38,cd:.6,cost:10,r:3.6,vr:6,vs:{tank:.4}},
-  at:{name:'ПТ',sym:'◆',hint:'жжёт танки',hp:26,dmg:9,range:34,speed:32,cd:1.4,cost:18,r:4.2,vr:6,vs:{tank:2.8,inf:.6,at:.6,art:.8,hq:.6}},
-  tank:{name:'Танки',sym:'■',hint:'давят пехоту',hp:150,dmg:16,range:26,speed:24,cd:1.1,cost:45,r:7,vr:6,splash:9,vs:{inf:1.4,at:1.2}},
-  art:{name:'Арта',sym:'▲',hint:'бьёт издали',hp:22,dmg:20,range:90,minR:28,speed:24,cd:2.2,cost:35,r:5.5,vr:5,splash:20,boom:true,vs:{tank:.55}},
+  inf:{name:'Пехота',sym:'●',hint:'дёшево и много',hp:30,dmg:6,range:16,speed:38,cd:.6,cost:10,r:4.6,vr:6,vs:{tank:.4}},
+  at:{name:'ПТ',sym:'◆',hint:'жжёт танки',hp:26,dmg:9,range:34,speed:32,cd:1.4,cost:18,r:5.4,vr:6,vs:{tank:2.8,inf:.6,at:.6,art:.8,hq:.6}},
+  tank:{name:'Танки',sym:'■',hint:'давят пехоту',hp:150,dmg:16,range:26,speed:24,cd:1.1,cost:45,r:9,vr:6,splash:9,vs:{inf:1.4,at:1.2}},
+  art:{name:'Арта',sym:'▲',hint:'бьёт издали',hp:22,dmg:20,range:90,minR:28,speed:24,cd:2.2,cost:35,r:7,vr:5,splash:20,boom:true,vs:{tank:.55}},
 };
-const KEYS=['inf','at','tank','art'];
-const COL={1:'#6ea8d8',2:'#d9796f',0:'#8a8f96'};
-const GOLD='#d8b860';
+T.hero={name:'Командир',sym:'★',hp:420,dmg:15,range:42,speed:46,cd:.45,cost:0,r:6.5,vr:7,vs:{tank:.6}};
+const KEYS=['inf','at','tank','art'],REQ={inf:1,at:2,tank:3,art:4},MAXBASE=5;
+const COL={1:'#3f8fe0',2:'#e2564a',0:'#8a8f96'};
+const GOLD='#ffc93c';
 
 const cv=document.getElementById('c'),ctx=cv.getContext('2d'),wrap=document.getElementById('wrap');
 const dpr=Math.min(2,window.devicePixelRatio||1);
 let vw=300,vh=300,minZ=.3;const maxZ=2.2,cam={x:0,y:0,z:1};
-let S,units,mines,fx,toasts=[],time,running=false,paused=false,speed=1,diff=1,ai,gest=null,buyAmt=1,over=false,march=false,decals=[];
+let S,units,mines,fx,toasts=[],time,running=false,paused=false,speed=1,diff=1,ai,gest=null,buyAmt=1,over=false,march=false,decals=[],coins=[],hero=null,heroT=0;
 let mapKind='rand',mapName='',fog=true,alertT=-99;
 let terC=null,mmC=null,frame=0,repathBudget=0;
 try{const p=JSON.parse(localStorage.getItem('front')||'{}');if(MAPNAME[p.map]||p.map=='rand')mapKind=p.map;if(p.fog===false)fog=false}catch(_){}
@@ -240,41 +245,41 @@ function renderTerrain(){
   const dab=(x,y,r,c,a,core)=>{const gr=g.createRadialGradient(x,y,r*(core||.55),x,y,r);gr.addColorStop(0,`rgba(${c},${a})`);gr.addColorStop(1,`rgba(${c},0)`);
     g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2)};
   const soft=(t,c,r,a,ox,oy)=>each(t,(x,y)=>dab(x+(ox||0),y+(oy||0),r,c,a==null?1:a));
-  g.fillStyle='#3a4539';g.fillRect(0,0,W,H);
-  for(let i=0;i<90;i++)dab(rnd(i)*W,rnd(i+50)*H,60+rnd(i+99)*90,rnd(i+7)<.5?'30,38,31':'72,84,66',.16,.05);
-  soft(HILL,'20,24,18',17,.3,3,4);soft(HILL,'86,94,72',17);soft(HILL,'104,112,88',11,.75,-2,-3);
-  soft(FOREST,'24,30,24',17,.3,2,3);soft(FOREST,'42,58,45',17);
-  each(FOREST,(x,y,i)=>{for(let k=0;k<3;k++)dab(x-8+rnd(i+k)*16,y-8+rnd(i+k*7+3)*16,4.5,k==1?'58,78,60':'33,46,36',.8,.3)});
-  soft(WATER,'150,150,128',19,.22);soft(WATER,'52,78,102',17);soft(WATER,'64,94,120',10,.6);
-  each(FORD,(x,y,i)=>{g.fillStyle='#55778f';g.fillRect(x-CS/2,y-CS/2,CS,CS);g.fillStyle='rgba(170,190,200,.5)';for(let k=0;k<4;k++)g.fillRect(x-8+rnd(i+k)*15,y-8+rnd(i+k+5)*15,2.5,1.2)});
-  soft(ROCK,'22,24,26',18,.3,2,3);soft(ROCK,'86,90,96',17);
-  each(ROCK,(x,y,i)=>{const ox=x-6+rnd(i)*5,oy=y+4,h=8+rnd(i+2)*4;g.fillStyle='#6f737a';g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+5,oy-h);g.lineTo(ox+10,oy);g.fill();
-    g.fillStyle='#8a8e95';g.beginPath();g.moveTo(ox+5,oy-h);g.lineTo(ox+6.5,oy-h*.5);g.lineTo(ox+10,oy);g.lineTo(ox+5,oy-2);g.fill()});
+  g.fillStyle='#7fae62';g.fillRect(0,0,W,H);
+  for(let i=0;i<90;i++)dab(rnd(i)*W,rnd(i+50)*H,60+rnd(i+99)*90,rnd(i+7)<.5?'92,146,78':'172,206,120',.24,.05);
+  soft(HILL,'70,104,50',17,.35,3,4);soft(HILL,'178,198,112',17);soft(HILL,'208,220,146',11,.8,-2,-3);
+  soft(FOREST,'34,84,48',17,.4,2,4);soft(FOREST,'62,134,76',17);
+  each(FOREST,(x,y,i)=>{for(let k=0;k<3;k++)dab(x-8+rnd(i+k)*16,y-8+rnd(i+k*7+3)*16,4.5,k==1?'112,182,104':'40,104,58',.85,.3)});
+  soft(WATER,'236,220,164',19,.55);soft(WATER,'78,160,214',17);soft(WATER,'124,196,238',10,.6);
+  each(FORD,(x,y,i)=>{g.fillStyle='#93cbe8';g.fillRect(x-CS/2,y-CS/2,CS,CS);g.fillStyle='rgba(255,255,255,.65)';for(let k=0;k<4;k++)g.fillRect(x-8+rnd(i+k)*15,y-8+rnd(i+k+5)*15,2.5,1.2)});
+  soft(ROCK,'70,84,66',18,.35,2,4);soft(ROCK,'152,154,150',17);
+  each(ROCK,(x,y,i)=>{const ox=x-6+rnd(i)*5,oy=y+4,h=8+rnd(i+2)*4;g.fillStyle='#8d9096';g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+5,oy-h);g.lineTo(ox+10,oy);g.fill();
+    g.fillStyle='#cdd0d3';g.beginPath();g.moveTo(ox+5,oy-h);g.lineTo(ox+6.5,oy-h*.5);g.lineTo(ox+10,oy);g.lineTo(ox+5,oy-2);g.fill()});
   const isR=(cx,cy)=>cx>=0&&cy>=0&&cx<GC&&cy<GR&&(ter[cy*GC+cx]==ROAD||ter[cy*GC+cx]==BRIDGE);
   g.lineCap='round';
-  for(const[c,w]of[['rgba(40,38,30,.55)',8.5],['#857b64',5.5]]){g.strokeStyle=c;g.lineWidth=w;
+  for(const[c,w]of[['rgba(126,100,58,.65)',9],['#e4d2a0',6]]){g.strokeStyle=c;g.lineWidth=w;
     each(ROAD,(mx,my,i)=>{const cx=i%GC,cy=(i/GC)|0;let any=false;
       const ln=(dx,dy)=>{any=true;g.beginPath();g.moveTo(mx,my);g.lineTo(mx+dx*CS,my+dy*CS);g.stroke()};
       if(isR(cx+1,cy))ln(1,0);if(isR(cx,cy+1))ln(0,1);if(isR(cx-1,cy))any=true;if(isR(cx,cy-1))any=true;
       if(isR(cx+1,cy+1)&&!isR(cx+1,cy)&&!isR(cx,cy+1))ln(1,1);
       if(isR(cx-1,cy+1)&&!isR(cx-1,cy)&&!isR(cx,cy+1))ln(-1,1);
       if(!any){g.beginPath();g.moveTo(mx,my);g.lineTo(mx+.1,my);g.stroke()}})}
-  each(BRIDGE,(x,y)=>{g.fillStyle='#74634c';g.fillRect(x-CS/2,y-CS/2,CS,CS);g.fillStyle='rgba(30,24,16,.35)';for(let k=0;k<4;k++)g.fillRect(x-CS/2,y-CS/2+k*5,CS,1)});
+  each(BRIDGE,(x,y)=>{g.fillStyle='#bd8f5c';g.fillRect(x-CS/2,y-CS/2,CS,CS);g.fillStyle='rgba(30,24,16,.35)';for(let k=0;k<4;k++)g.fillRect(x-CS/2,y-CS/2+k*5,CS,1)});
   mmC=document.createElement('canvas');mmC.width=160;mmC.height=280;mmC.getContext('2d').drawImage(terC,0,0,160,280);
 }
 
 // ---------- fog of war ----------
 const vis=new Uint8Array(N),fogA=new Float32Array(N);
 const fogC=document.createElement('canvas');fogC.width=GC;fogC.height=GR;const fogX=fogC.getContext('2d'),fogI=fogX.createImageData(GC,GR);
-for(let i=0;i<N;i++){fogI.data[i*4]=13;fogI.data[i*4+1]=15;fogI.data[i*4+2]=18}
+for(let i=0;i<N;i++){fogI.data[i*4]=24;fogI.data[i*4+1]=36;fogI.data[i*4+2]=58}
 const circ=r=>{const o=[];for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)if(dx*dx+dy*dy<=r*r+r*.6)o.push(dx,dy);return o};
-const CO={5:circ(5),6:circ(6),8:circ(8)};
+const CO={5:circ(5),6:circ(6),7:circ(7),8:circ(8)};
 function mark(x,y,r){const cx=x/CS|0,cy=y/CS|0,o=CO[r];for(let i=0;i<o.length;i+=2){const xx=cx+o[i],yy=cy+o[i+1];if(xx>=0&&yy>=0&&xx<GC&&yy<GR)vis[yy*GC+xx]=1}}
 function updFog(k){
   if(!fog){vis.fill(1);return}
   vis.fill(0);for(const u of units)if(u.s==1)mark(u.x,u.y,T[u.k].vr);
   mark(S[1].hq.x,S[1].hq.y,8);for(const m of mines)if(m.owner==1)mark(m.x,m.y,5);
-  const d=fogI.data;for(let i=0;i<N;i++){fogA[i]+=((vis[i]?0:1)-fogA[i])*k;d[i*4+3]=fogA[i]*98}
+  const d=fogI.data;for(let i=0;i<N;i++){fogA[i]+=((vis[i]?0:1)-fogA[i])*k;d[i*4+3]=fogA[i]*105}
   fogX.putImageData(fogI,0,0)}
 const seen=(x,y)=>vis[clamp(y/CS|0,0,GR-1)*GC+clamp(x/CS|0,0,GC-1)]==1;
 
@@ -284,26 +289,28 @@ function newGame(){
   const h1=m.hq,h2={x:W-h1.x,y:H-h1.y};
   S={1:mkSide(1,h1),2:mkSide(2,h2)};
   units=[];fx=[];toasts=[];decals=[];time=0;over=false;paused=false;mines=m.mines;alertT=-99;
-  ai={t:0,wave:25,def:1};
+  ai={t:0,wave:25,def:1};coins=[];hero=null;heroT=0;
   for(const s of[1,2])homeRally(s,S[s].hq);
+  spawnHero();
   fogA.fill(fog?1:0);updFog(1);
   cam.z=clamp(vw/400,minZ,maxZ);cam.x=h1.x-vw/cam.z/2;cam.y=h1.y+100/cam.z-vh/cam.z;clampCam();
   toast('Карта: '+mapName);
 }
-function mkSide(s,hq){return{gold:60,eco:1,lost:0,lvl:{inf:1,at:1,tank:1,art:1},rally:{},rpath:{},rsrc:{},
-  hq:{s,x:hq.x,y:hq.y,r:18,hp:3000,max:3000,cd:0,isHQ:true,dead:false}}}
+function mkSide(s,hq){const h={s,x:hq.x,y:hq.y,r:18,hp:3000,max:3000,cd:0,isHQ:true,dead:false};return{gold:60,base:1,lost:0,src:h,lvl:{inf:1,at:1,tank:1,art:1},rally:{},rpath:{},rsrc:{},
+  hq:h}}
+function spawnHero(){const hq=S[1].hq,t=T.hero,x=hq.x,y=hq.y-30;
+  hero={s:1,k:'hero',x,y,ox:x,oy:y,lx:x,ly:y,st:0,nc:0,march:false,sel:false,a:-1.57,ta:-1.57,r:t.r,hp:t.hp,max:t.hp,dmg:t.dmg,cd:0,rt:0,target:null,dead:false,tx:x,ty:y,path:null,pi:0,carry:0};units.push(hero)}
 function homeRally(s,base){const dx=W/2-base.x,dy=H/2-base.y,d=Math.hypot(dx,dy)||1;setRally(s,KEYS,base.x+dx/d*75,base.y+dy/d*75)}
-// troops come out of the HQ or an owned outpost, whichever is closer to the rally point
-function setRally(s,keys,x,y){[x,y]=fixDest(x,y);const sd=S[s];let src=sd.hq,bd=Math.hypot(src.x-x,src.y-y);
-  for(const m of mines)if(m.kind=='post'&&m.owner==s){const dd=Math.hypot(m.x-x,m.y-y);if(dd<bd){bd=dd;src=m}}
+// troops come out of the side's chosen source: the HQ or an owned outpost
+function setRally(s,keys,x,y){[x,y]=fixDest(x,y);const sd=S[s],src=sd.src;
   const d=field(nearPass(x,y),false),p=getPath(src.x,src.y,d,x,y);
   for(const k of keys){sd.rally[k]={x,y};sd.rpath[k]=p;sd.rsrc[k]=src}}
 function refreshRally(s){for(const k of KEYS){const r=S[s].rally[k];setRally(s,[k],r.x,r.y)}}
 function toast(msg){toasts.push({msg,life:3});if(toasts.length>3)toasts.shift()}
 
-function income(s){let n=4+2*S[s].eco;for(const m of mines)if(m.owner==s)n+=m.val;return n}
+function income(s){let n=4+2*S[s].base;for(const m of mines)if(m.owner==s)n+=m.val;return n}
 function upCost(k,s){return T[k].cost*6*S[s].lvl[k]}
-function ecoCost(s){return 80*S[s].eco}
+function baseCost(s){return 120*S[s].base}
 function count(s){let n=0;for(const u of units)if(u.s==s)n++;return n}
 const turn=(a,b,k)=>a+(((b-a+9.4248)%6.2832)-3.1416)*Math.min(1,k);
 
@@ -313,9 +320,9 @@ function spawn(s,k){
   let x=src.x+Math.cos(a)*22,y=src.y+Math.sin(a)*22;if(!pass(x,y)){x=src.x;y=src.y}
   units.push({s,k,x,y,ox:x,oy:y,lx:x,ly:y,st:0,nc:0,march:false,sel:false,a:s==1?-1.57:1.57,ta:s==1?-1.57:1.57,r:t.r,hp:t.hp*m,max:t.hp*m,dmg:t.dmg*m,cd:Math.random()*t.cd,rt:0,target:null,dead:false,tx,ty,path:sd.rpath[k],pi:0});
 }
-function buy(s,k,n){for(let i=0;i<n;i++){if(S[s].gold<T[k].cost||count(s)>=CAP)return;S[s].gold-=T[k].cost;spawn(s,k)}}
-function upgrade(s,k){const c=upCost(k,s);if(S[s].gold>=c){S[s].gold-=c;S[s].lvl[k]++}}
-function upEco(s){const c=ecoCost(s);if(S[s].gold>=c){S[s].gold-=c;S[s].eco++}}
+function buy(s,k,n){if(S[s].base<REQ[k])return;for(let i=0;i<n;i++){if(S[s].gold<T[k].cost||count(s)>=CAP)return;S[s].gold-=T[k].cost;spawn(s,k)}}
+function upgrade(s,k){const c=upCost(k,s);if(S[s].lvl[k]<S[s].base&&S[s].gold>=c){S[s].gold-=c;S[s].lvl[k]++}}
+function upBase(s){const sd=S[s],c=baseCost(s);if(sd.base<MAXBASE&&sd.gold>=c){sd.gold-=c;sd.base++;sd.hq.max+=500;sd.hq.hp+=500}}
 
 // spatial grid for units
 const CELL=32,UC=Math.ceil(W/CELL),UR=Math.ceil(H/CELL);let grid=[];
@@ -331,7 +338,8 @@ function damage(t,a,k){if(t.dead)return;
   if(k){const m=T[k].vs[t.isHQ?'hq':t.k];if(m)a*=m}
   if(t.isHQ){if(t.s==1&&time-alertT>10){alertT=time;toast('Штаб под ударом')}}
   else if(tAt(t.x,t.y)==FOREST)a*=.7;
-  t.hp-=a;if(t.hp<=0){t.hp=0;t.dead=true;if(t.isHQ)endGame(t.s!=1);else{S[t.s].lost++;decals.push({x:t.x,y:t.y,r:t.r,life:30})}}}
+  t.hp-=a;if(t.hp<=0){t.hp=0;t.dead=true;if(t.isHQ)endGame(t.s!=1);else{S[t.s].lost++;decals.push({x:t.x,y:t.y,r:t.r,life:30});
+    if(t.s==2)coins.push({x:t.x,y:t.y,v:Math.max(3,Math.round(T[t.k].cost*.4)),life:50});else if(t.k!='hero')S[2].gold+=T[t.k].cost*.25}}}
 function splash(s,x,y,rad,a,k){for(const o of units)if(o.s!=s&&!o.dead&&(o.x-x)**2+(o.y-y)**2<rad*rad)damage(o,a,k);
   const hq=S[3-s].hq;if(Math.hypot(hq.x-x,hq.y-y)<rad+hq.r)damage(hq,a,k);}
 
@@ -389,23 +397,36 @@ function updMines(dt){
     if(m.owner==1&&m.prog<0)m.owner=0;if(m.owner==2&&m.prog>0)m.owner=0;
     if(m.prog>=1)m.owner=1;if(m.prog<=-1)m.owner=2;
     if(m.owner!=was){const nm=m.kind=='post'?'Форпост':'Шахта';
-      if(m.owner==1)toast(nm+(m.kind=='post'?' взят':' взята'));else if(was==1)toast(nm+(m.kind=='post'?' потерян':' потеряна'));
-      if(m.kind=='post'){refreshRally(1);const p=mines.find(o=>o.kind=='post'&&o.owner==2);homeRally(2,p||S[2].hq)}}}
+      if(m.owner==1)toast(m.kind=='post'?'Форпост взят — тапни по нему, чтобы войска выходили оттуда':'Шахта взята');else if(was==1)toast(nm+(m.kind=='post'?' потерян':' потеряна'));
+      if(m.kind=='post'){if(S[1].src===m&&m.owner!=1){S[1].src=S[1].hq;homeRally(1,S[1].hq)}
+        const p=mines.find(o=>o.kind=='post'&&o.owner==2)||S[2].hq;if(S[2].src!==p){S[2].src=p;homeRally(2,p)}}}}
 }
 function updHQ(hq,dt){if(hq.dead)return;hq.cd-=dt;if(hq.cd>0)return;
   let best=null,bd=95*95;for(const u of units)if(u.s!=hq.s&&!u.dead){const d=(u.x-hq.x)**2+(u.y-hq.y)**2;if(d<bd){bd=d;best=u}}
   if(best){hq.cd=.7;damage(best,14,null);fx.push({type:'line',x1:hq.x,y1:hq.y,x2:best.x,y2:best.y,c:'#e6dca8',life:.1,max:.1})}}
+
+function updLoot(dt){
+  if(hero&&hero.dead){for(let v=hero.carry;v>0;v-=10)coins.push({x:hero.x+(Math.random()-.5)*24,y:hero.y+(Math.random()-.5)*24,v:Math.min(10,v),life:60});
+    hero=null;heroT=20;toast('Командир выбыл на 20 с')}
+  if(!hero){heroT-=dt;if(heroT<=0){spawnHero();toast('Командир снова в строю')}}
+  for(const c of coins){c.life-=dt;if(!hero)continue;const dx=hero.x-c.x,dy=hero.y-c.y,d=Math.hypot(dx,dy);
+    if(d<11){hero.carry+=c.v;c.life=0}else if(d<50){c.x+=dx/d*130*dt;c.y+=dy/d*130*dt}}
+  coins=coins.filter(c=>c.life>0);
+  if(hero&&hero.carry>0){const sd=S[1];let home=(hero.x-sd.hq.x)**2+(hero.y-sd.hq.y)**2<70*70;
+    if(!home)for(const m of mines)if(m.kind=='post'&&m.owner==1&&(hero.x-m.x)**2+(hero.y-m.y)**2<2500)home=true;
+    if(home){sd.gold+=hero.carry;toast(`Командир принёс ${hero.carry} золота`);hero.carry=0}}}
 
 // ---------- AI: counters the player's mix, defends what it owns, attacks in one or two groups ----------
 function updAI(dt){
   const s=2,sd=S[s];ai.t-=dt;
   if(ai.t<=0){ai.t=.7;
     if(Math.random()<.15){const k=KEYS[Math.random()*4|0];
-      if(sd.eco<6&&sd.gold>ecoCost(s)*1.2&&time>20)upEco(s);else if(sd.gold>upCost(k,s)*1.3)upgrade(s,k)}
+      if(sd.gold>upCost(k,s)*1.3)upgrade(s,k)}
+    const saving=sd.base<MAXBASE&&time>35*sd.base;if(saving&&sd.gold>=baseCost(s))upBase(s);
     const pc={inf:0,at:0,tank:0,art:0};let pn=0;for(const u of units)if(u.s==1){pc[u.k]++;pn++}
     const ts=pn?pc.tank/pn:0,is=pn?(pc.inf+pc.at)/pn:.6;
-    const w={inf:3,at:time>30?.4+7*ts:0,tank:time>40?1+2.5*is:0,art:time>70?.6+1.6*is:0};
-    for(let n=sd.gold>200?2:1;n--;){let r=Math.random()*(w.inf+w.at+w.tank+w.art),k='inf';
+    const w={inf:3,at:sd.base>=2?.4+7*ts:0,tank:sd.base>=3?1+2.5*is:0,art:sd.base>=4?.6+1.6*is:0};
+    for(let n=saving&&Math.random()<.6?0:sd.gold>200?2:1;n-->0;){let r=Math.random()*(w.inf+w.at+w.tank+w.art),k='inf';
       for(const q of KEYS){r-=w[q];if(r<=0){k=q;break}}
       buy(s,k,1)}}
   ai.def-=dt;
@@ -449,7 +470,7 @@ function endGame(win){if(over)return;over=true;running=false;gest=null;
 const selU=()=>units.filter(u=>u.s==1&&u.sel);
 function setSel(list){for(const u of units)u.sel=false;for(const u of list)u.sel=true;if(S)hud()}
 function typeBtn(f){const all=units.filter(u=>u.s==1),sel=all.filter(u=>u.sel);
-  if(f=='all'){setSel(sel.length==all.length?[]:all);return}
+  if(f=='all'){const army=all.filter(u=>u.k!='hero');setSel(army.length&&army.every(u=>u.sel)?[]:army);return}
   const of=all.filter(u=>u.k==f),inSel=sel.filter(u=>u.k==f);
   if(inSel.length&&inSel.length<sel.length)setSel(inSel);      // mixed selection: keep only this kind
   else if(inSel.length&&inSel.length==of.length)setSel([]);
@@ -463,9 +484,16 @@ function order(p){const sel=selU();
   send(sel,p.x,p.y,march);fx.push({type:'ping',x:p.x,y:p.y,life:.5,max:.5})}
 function handleTap(p){
   if(rallyArm){const sel=selU(),ks=sel.length?KEYS.filter(k=>sel.some(u=>u.k==k)):KEYS;
-    setRally(1,ks,p.x,p.y);setArm('rally',false);const r=S[1].rally[ks[0]];fx.push({type:'ping',x:r.x,y:r.y,life:.5,max:.5});
+    if(!ks.length)ks.push(...KEYS);setRally(1,ks,p.x,p.y);setArm('rally',false);const r=S[1].rally[ks[0]];fx.push({type:'ping',x:r.x,y:r.y,life:.5,max:.5});
     toast('Точка сбора: '+(ks.length==4?'все':ks.map(k=>T[k].sym).join(' ')));return}
-  const R=Math.max(9,20/cam.z);let best=null,bd=R*R;
+  const R=Math.max(9,20/cam.z),sd=S[1];
+  // own outpost or HQ: make it the place troops come out of
+  for(const b of[sd.hq,...mines.filter(m=>m.kind=='post'&&m.owner==1)])if(b!==sd.src&&Math.hypot(b.x-p.x,b.y-p.y)<Math.max(18,R)){
+    sd.src=b;homeRally(1,b);toast(b.isHQ?'Войска выходят из штаба':'Войска выходят из форпоста');return}
+  // rally flag: pick up the squad gathered around it
+  for(const k of KEYS){const r=sd.rally[k];if(Math.hypot(r.x-p.x,r.y-p.y)<Math.max(13,R)){
+    const sq=units.filter(u=>u.s==1&&u.k!='hero'&&Math.hypot(u.x-r.x,u.y-r.y)<85);if(sq.length){setSel(sq);toast('Отряд у сбора: '+sq.length);return}}}
+  let best=null,bd=R*R;
   for(const u of units)if(u.s==1){const d=(u.x-p.x)**2+(u.y-p.y)**2;if(d<bd){bd=d;best=u}}
   const now=performance.now();
   if(best){
@@ -539,8 +567,8 @@ for(const k of KEYS){const d=document.createElement('div');d.className='u';
   uEl.appendChild(d);
   d.querySelector('.buy').onclick=()=>{if(running)buy(1,k,buyAmt)};d.querySelector('.up').onclick=()=>{if(running)upgrade(1,k)};}
 $('amt').onclick=e=>{buyAmt=buyAmt==1?5:buyAmt==5?10:1;e.target.textContent='Закупка ×'+buyAmt};
-$('eco').onclick=()=>{if(running)upEco(1)};
-$('atk').onclick=()=>{if(!running)return;const sel=selU();send(sel.length?sel:units.filter(u=>u.s==1),S[2].hq.x,S[2].hq.y)};
+$('eco').onclick=()=>{if(running)upBase(1)};
+$('atk').onclick=()=>{if(!running)return;const sel=selU();send(sel.length?sel:units.filter(u=>u.s==1&&u.k!='hero'),S[2].hq.x,S[2].hq.y)};
 function setMarch(v){march=v;const b=$('mode');b.textContent=v?'Марш':'Бой';b.classList.toggle('on',v)}
 $('mode').onclick=()=>setMarch(!march);
 function setArm(w,v){if(w=='box'){boxArm=v;if(v)rallyArm=false}else{rallyArm=v;if(v){boxArm=false;toast('Тапни по карте — там будет точка сбора')}}
@@ -560,25 +588,27 @@ $('fogb').onclick=()=>{fog=!fog;mapBtns();savePrefs()};
 document.querySelectorAll('#ov [data-d]').forEach(b=>b.onclick=()=>{diff=+b.dataset.d;newGame();setPause(false);setArm('box',false);setArm('rally',false);running=true;$('ov').hidden=true});
 const fmt=t=>`${t/60|0}:${String(t%60|0).padStart(2,'0')}`;
 let hudT=0;
-function hud(){const sd=S[1],n={inf:0,at:0,tank:0,art:0},sn={inf:0,at:0,tank:0,art:0};let mine=0,foe=0,sel=0;
-  for(const u of units)if(u.s==1){n[u.k]++;mine++;if(u.sel){sn[u.k]++;sel++}}else foe++;
+function hud(){const sd=S[1],n={inf:0,at:0,tank:0,art:0},sn={inf:0,at:0,tank:0,art:0,hero:0};let mine=0,foe=0,sel=0;
+  for(const u of units)if(u.s==1){if(u.k!='hero'){n[u.k]++;mine++}if(u.sel){sn[u.k]++;sel++}}else foe++;
   $('gold').textContent=sd.gold|0;
   $('inc').textContent=`+${income(1)}/с`;
   $('cnt').innerHTML=`<span style="color:${COL[1]}">${mine}</span> : <span style="color:${COL[2]}">${fog?'?':foe}</span>`;
   $('tm').textContent=fmt(time);
   for(const k of KEYS){const b=$('b_'+k),u=$('u_'+k);
-    b.textContent=T[k].cost*buyAmt;b.disabled=sd.gold<T[k].cost;
-    u.textContent=`ур.${sd.lvl[k]} ↑${upCost(k,1)}`;u.disabled=sd.gold<upCost(k,1);}
+    const lock=sd.base<REQ[k],cap=sd.lvl[k]>=sd.base;
+    b.textContent=lock?`база ${REQ[k]}`:T[k].cost*buyAmt;b.disabled=lock||sd.gold<T[k].cost;
+    u.textContent=cap?`ур.${sd.lvl[k]} · база ${sd.base+1}`:`ур.${sd.lvl[k]} ↑${upCost(k,1)}`;u.disabled=lock||cap||sd.gold<upCost(k,1);}
   document.querySelectorAll('#flt button').forEach(b=>{const f=b.dataset.f;
-    if(f=='all'){b.textContent=`Все ${sel?sel+'/':''}${mine}`;b.classList.toggle('on',sel>0&&sel==mine)}
+    if(f=='all'){const a=sel-sn.hero;b.textContent=`Все ${a?a+'/':''}${mine}`;b.classList.toggle('on',a>0&&a==mine)}
+    else if(f=='hero'){b.textContent=hero?'★'+(hero.carry?' '+hero.carry:''):`★ ${Math.ceil(heroT)}с`;b.classList.toggle('on',sn.hero>0);b.disabled=!hero}
     else{b.textContent=`${T[f].sym} ${sn[f]?sn[f]+'/':''}${n[f]}`;b.classList.toggle('on',sn[f]>0)}});
   $('half').disabled=sel<2;$('desel').disabled=!sel;
   $('atk').textContent=sel?`Атака ${sel}`:'Атака';
-  const e=$('eco');e.textContent=`Экономика ${sd.eco} ↑${ecoCost(1)}`;e.disabled=sd.gold<ecoCost(1);}
+  const e=$('eco'),mx=sd.base>=MAXBASE;e.textContent=mx?`База ${sd.base} (макс.)`:`База ${sd.base} ↑${baseCost(1)}`;e.disabled=mx||sd.gold<baseCost(1);}
 
 // ---------- sprites: small top-down models, drawn once per side and rotated when blitted ----------
-const OUT='#1b1e22',MET='#2b2f34';
-const PAL={1:{base:'#5f93bf',light:'#9cc3e0',dark:'#3b5f80'},2:{base:'#c06a60',light:'#e3a399',dark:'#84453f'}};
+const OUT='#1c2a3a',MET='#3a4654';
+const PAL={1:{base:'#3f8fe0',light:'#9fd0ff',dark:'#235f9f'},2:{base:'#e2564a',light:'#ffaa9c',dark:'#a3352c'}};
 function mk(w,h,f){const c=document.createElement('canvas'),q=6;c.width=w*q;c.height=h*q;const g=c.getContext('2d');
   g.translate(w*q/2,h*q/2);g.scale(q,q);g.lineJoin='round';g.lineCap='round';f(g);return{c,w,h}}
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.lineTo(x+w-r,y);g.quadraticCurveTo(x+w,y,x+w,y+r);g.lineTo(x+w,y+h-r);g.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
@@ -590,6 +620,12 @@ for(const s of[1,2]){const c=PAL[s];
     g.fillStyle=c.light;g.beginPath();g.arc(.2,y,1.75,0,6.283);g.fill();g.stroke();
     g.fillStyle='rgba(255,255,255,.28)';g.beginPath();g.arc(.7,y-.5,.65,0,6.283);g.fill()};
   SPR[s]={
+    hero:mk(16,13,g=>{g.strokeStyle='#14161a';g.lineWidth=1;g.beginPath();g.moveTo(1,3.2);g.lineTo(6,2.6);g.stroke();
+      g.strokeStyle=OUT;g.lineWidth=.6;g.fillStyle=c.dark;g.beginPath();g.ellipse(-.4,0,2.6,4.6,0,0,6.283);g.fill();g.stroke();
+      g.fillStyle=GOLD;g.beginPath();g.arc(-.4,-3.9,1.1,0,6.283);g.arc(-.4,3.9,1.1,0,6.283);g.fill();
+      g.fillStyle=c.light;g.beginPath();g.arc(.3,0,2.7,0,6.283);g.fill();g.stroke();
+      g.fillStyle=c.dark;g.beginPath();g.arc(.3,0,2.7,1.2,5.08);g.fill();g.stroke();
+      g.fillStyle=GOLD;g.beginPath();g.arc(-.9,0,.9,0,6.283);g.fill()}),
     inf:mk(12,9,g=>{g.strokeStyle='#14161a';g.lineWidth=.9;g.beginPath();g.moveTo(.4,2.3);g.lineTo(4.8,1.6);g.stroke();soldier(g,0)}),
     at:mk(14,11,g=>{g.strokeStyle=OUT;g.lineWidth=.45;
       g.strokeStyle=MET;g.lineWidth=.8;g.beginPath();g.moveTo(-1.5,0);g.lineTo(-5.6,2.2);g.moveTo(-1.5,0);g.lineTo(-5.6,-2.2);g.stroke();
@@ -625,12 +661,13 @@ function drawHQ(hq,s){const x=hq.x,y=hq.y,c=PAL[s];
     ctx.fillStyle=c.light;ctx.beginPath();ctx.arc(x+dx*18,y+dy*18,2.4,0,6.283);ctx.fill()}
   ctx.strokeStyle='#d7dade';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x,y+1);ctx.lineTo(x,y-13);ctx.stroke();
   ctx.fillStyle=c.light;ctx.beginPath();ctx.moveTo(x+.6,y-13);ctx.lineTo(x+9,y-10);ctx.lineTo(x+.6,y-7);ctx.fill();
-  const bw=46,by=s==1?y+27:y-31;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x-bw/2,by,bw,4);ctx.fillStyle='#a3c08e';ctx.fillRect(x-bw/2,by,bw*hq.hp/hq.max,4)}
+  const bw=46,by=s==1?y+27:y-31;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x-bw/2,by,bw,4);ctx.fillStyle='#7be07a';ctx.fillRect(x-bw/2,by,bw*hq.hp/hq.max,4);
+  ctx.fillStyle=GOLD;ctx.font='800 8px sans-serif';ctx.fillText('★'.repeat(S[s].base),x,s==1?by+10:by-7)}
 
 // ---------- draw ----------
 function draw(){
   const z=cam.z,B=dpr*z,E=-cam.x*z*dpr,F=-cam.y*z*dpr;
-  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#15181c';ctx.fillRect(0,0,vw,vh);
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#1b2a41';ctx.fillRect(0,0,vw,vh);
   ctx.setTransform(B,0,0,B,E,F);
   ctx.drawImage(terC,0,0,W,H);
   const x0=cam.x-20,y0=cam.y-20,x1=cam.x+vw/z+20,y1=cam.y+vh/z+20;
@@ -639,8 +676,8 @@ function draw(){
   for(const d of decals){if(d.x<x0||d.x>x1||d.y<y0||d.y>y1)continue;ctx.globalAlpha=Math.min(1,d.life/8)*.3;ctx.beginPath();ctx.arc(d.x,d.y,d.r*1.7,0,6.283);ctx.fill()}
   ctx.globalAlpha=1;
   for(const m of mines){const R=15,x=m.x,y=m.y;
-    ctx.fillStyle='rgba(16,18,20,.5)';ctx.beginPath();ctx.arc(x,y,R,0,6.283);ctx.fill();
-    ctx.strokeStyle=m.owner?COL[m.owner]:'rgba(255,255,255,.18)';ctx.lineWidth=m.owner?2:1;ctx.beginPath();ctx.arc(x,y,R,0,6.283);ctx.stroke();
+    ctx.fillStyle='rgba(24,36,58,.72)';ctx.beginPath();ctx.arc(x,y,R,0,6.283);ctx.fill();
+    ctx.strokeStyle=m.owner?COL[m.owner]:'rgba(255,255,255,.55)';ctx.lineWidth=m.owner?2:1;ctx.beginPath();ctx.arc(x,y,R,0,6.283);ctx.stroke();
     const ap=Math.abs(m.prog);if(ap>0&&ap<1){ctx.strokeStyle=m.prog>0?COL[1]:COL[2];ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,R+4,-1.571,-1.571+6.283*ap);ctx.stroke()}
     if(m.kind=='post'){ctx.fillStyle=m.owner?COL[m.owner]:'#a5a79c';ctx.fillRect(x-6,y-3,12,9);for(let k=0;k<3;k++)ctx.fillRect(x-6+k*4.5,y-6,3,3);
       ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x-1.5,y+1,3,5)}
@@ -648,23 +685,28 @@ function draw(){
       ctx.fillStyle='rgba(255,255,255,.3)';ctx.beginPath();ctx.moveTo(x,y-q);ctx.lineTo(x+q*.8,y);ctx.lineTo(x,y);ctx.fill();
       if(m.val>3){ctx.strokeStyle='rgba(216,184,96,.55)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,R+7,0,6.283);ctx.stroke()}}}
   for(const s of [1,2])if(!S[s].hq.dead)drawHQ(S[s].hq,s);
+  {const b=S[1].src,R=b.isHQ?31:21;if(mines.some(m=>m.kind=='post'&&m.owner==1)){ctx.strokeStyle=GOLD;ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineDashOffset=-time*8;
+    ctx.beginPath();ctx.arc(b.x,b.y,R,0,6.283);ctx.stroke();ctx.setLineDash([])}}
   if(fog){ctx.imageSmoothingEnabled=true;ctx.drawImage(fogC,0,0,W,H)}
   // rally flags, grouped when several unit types share a point
   const fl=[];for(const k of KEYS){const r=S[1].rally[k];let f=fl.find(o=>o.x==r.x&&o.y==r.y);if(!f)fl.push(f={x:r.x,y:r.y,s:''});f.s+=T[k].sym}
   for(const rl of fl){ctx.strokeStyle=COL[1];ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(rl.x,rl.y,6,0,6.283);ctx.stroke();
     ctx.beginPath();ctx.moveTo(rl.x,rl.y-6);ctx.lineTo(rl.x,rl.y-17);ctx.lineTo(rl.x+8,rl.y-13);ctx.lineTo(rl.x,rl.y-10);ctx.stroke();
-    if(fl.length>1){ctx.fillStyle='#dfe2e6';ctx.font='9px sans-serif';ctx.fillText(rl.s,rl.x,rl.y+14)}}
+    if(fl.length>1){ctx.fillStyle='#fff';ctx.font='9px sans-serif';ctx.fillText(rl.s,rl.x,rl.y+14)}}
+  for(const c of coins){if(!seen(c.x,c.y))continue;const r=c.v>8?3.2:2.4;ctx.fillStyle='#a8741a';ctx.beginPath();ctx.arc(c.x,c.y+.6,r,0,6.283);ctx.fill();
+    ctx.fillStyle=GOLD;ctx.beginPath();ctx.arc(c.x,c.y,r,0,6.283);ctx.fill();ctx.fillStyle='rgba(255,255,255,.6)';ctx.beginPath();ctx.arc(c.x-.7,c.y-.7,r*.35,0,6.283);ctx.fill()}
   // units: selection rings, then sprites, then health bars
-  const sc=Math.max(1,.62/z),vu=[];
+  const sc=Math.max(1.4,.9/z),vu=[];
   for(const u of units){if(u.x<x0||u.x>x1||u.y<y0||u.y>y1)continue;if(u.s==2&&!seen(u.x,u.y))continue;vu.push(u)}
   ctx.strokeStyle='rgba(236,239,242,.9)';ctx.lineWidth=Math.max(.9,1.1/z);ctx.beginPath();
-  for(const u of vu)if(u.sel){const R=(u.r+3.2)*sc;ctx.moveTo(u.x+R,u.y);ctx.arc(u.x,u.y,R,0,6.283)}
+  for(const u of vu)if(u.sel){const R=u.r+4.5;ctx.moveTo(u.x+R,u.y);ctx.arc(u.x,u.y,R,0,6.283)}
   ctx.stroke();
   for(const u of vu){const set=SPR[u.s],q=set[u.k],cs=Math.cos(u.a)*sc*B,sn=Math.sin(u.a)*sc*B;
     ctx.setTransform(cs,sn,-sn,cs,B*u.x+E,B*u.y+F);ctx.drawImage(q.c,-q.w/2,-q.h/2,q.w,q.h);
     if(u.k=='tank'){const t=set.tur,c2=Math.cos(u.ta)*sc*B,s2=Math.sin(u.ta)*sc*B;ctx.setTransform(c2,s2,-s2,c2,B*u.x+E,B*u.y+F);ctx.drawImage(t.c,-t.w/2,-t.h/2,t.w,t.h)}}
   ctx.setTransform(B,0,0,B,E,F);
-  for(const u of vu)if(u.hp<u.max&&(u.sel||u.k=='tank'||u.k=='art')){const w=u.r*2+4,y=u.y-(u.r+5)*sc;
+  if(hero){const y=hero.y-hero.r-9;ctx.font='800 10px sans-serif';ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillText(hero.carry?'★ '+hero.carry:'★',hero.x+.5,y+.6);ctx.fillStyle=GOLD;ctx.fillText(hero.carry?'★ '+hero.carry:'★',hero.x,y)}
+  for(const u of vu)if(u.hp<u.max&&(u.sel||u.k=='tank'||u.k=='art'||u.k=='hero')){const w=u.r*2+4,y=u.y-u.r-5;
     ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(u.x-w/2,y,w,1.8);ctx.fillStyle='#a3c08e';ctx.fillRect(u.x-w/2,y,w*u.hp/u.max,1.8)}
   for(const f of fx){if(f.d>0)continue;const a=f.life/f.max;
     if(f.type=='line'){if(!seen(f.x2,f.y2)&&!seen(f.x1,f.y1))continue;const t=1-a,t2=Math.min(1,t+.4);
@@ -691,6 +733,7 @@ function draw(){
   for(const mn of mines){ctx.fillStyle=mn.owner?COL[mn.owner]:GOLD;const q=mn.kind=='post'?2.5:1.8;ctx.fillRect(m.x+mn.x*kx-q,m.y+mn.y*ky-q,q*2,q*2)}
   for(const u of units){if(u.s==2&&!seen(u.x,u.y))continue;ctx.fillStyle=u.sel?'#fff':COL[u.s];ctx.fillRect(m.x+u.x*kx-.75,m.y+u.y*ky-.75,1.5,1.5)}
   for(const s of[1,2]){const hq=S[s].hq;ctx.fillStyle=COL[s];ctx.fillRect(m.x+hq.x*kx-3,m.y+hq.y*ky-3,6,6)}
+  if(hero){ctx.fillStyle=GOLD;ctx.beginPath();ctx.arc(m.x+hero.x*kx,m.y+hero.y*ky,2.6,0,6.283);ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=.6;ctx.stroke()}
   if(time-alertT<3&&(time*4|0)%2==0){const hq=S[1].hq;ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.strokeRect(m.x+hq.x*kx-6,m.y+hq.y*ky-6,12,12)}
   ctx.strokeStyle='rgba(223,226,230,.8)';ctx.lineWidth=1;ctx.strokeRect(m.x+Math.max(0,cam.x)*kx,m.y+Math.max(0,cam.y)*ky,Math.min(W,vw/z)*kx,Math.min(H,vh/z)*ky);
   ctx.strokeStyle='rgba(0,0,0,.6)';ctx.strokeRect(m.x-.5,m.y-.5,m.w+1,m.h+1);
@@ -707,7 +750,7 @@ function step(dt){frame++;repathBudget=2;time+=dt;
   for(const s of [1,2])S[s].gold+=income(s)*dt*(s==2?diff:1);
   buildGrid();for(const u of units)if(!u.dead)updUnit(u,dt);
   updHQ(S[1].hq,dt);updHQ(S[2].hq,dt);
-  units=units.filter(u=>!u.dead);buildGrid();separate();updMines(dt);updAI(dt);
+  units=units.filter(u=>!u.dead);updLoot(dt);buildGrid();separate();updMines(dt);updAI(dt);
   fogT-=dt;if(fogT<=0){fogT=.12;updFog(.4)}
   fx=fx.filter(f=>f.d>0?((f.d-=dt),true):(f.life-=dt)>0);toasts=toasts.filter(t=>(t.life-=dt)>0);
   decals=decals.filter(d=>(d.life-=dt)>0);if(decals.length>220)decals.splice(0,decals.length-220);}
@@ -717,6 +760,6 @@ function loop(now){let dt=Math.min(.05,(now-last)/1000);last=now;
 addEventListener('resize',resize);resize();mapBtns();
 newGame();hud();requestAnimationFrame(loop);
 // test hook: fast-forward the simulation
-window.__front={step:(n,dt=.05)=>{for(let i=0;i<n&&running;i++)step(dt)},state:()=>({S,units,mines,time,over,mapName,cam}),buy,send,setSel};
+window.__front={step:(n,dt=.05)=>{for(let i=0;i<n&&running;i++)step(dt)},state:()=>({S,units,mines,time,over,mapName,cam,hero,coins}),upBase,buy,send,setSel};
 })();
 </script>
