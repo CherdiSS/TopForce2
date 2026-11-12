@@ -42,8 +42,10 @@ button.on{background:var(--sel)}
 .row2 button{font-size:12px;padding:5px 2px 7px;margin:0}
 .row6{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .row6 button{font-size:11.5px;padding:7px 1px 9px}
-.row5{display:grid;grid-template-columns:1.3fr repeat(5,1fr);gap:6px}
-.row5 button{padding:5px 2px 7px;font-size:12px}
+.rowS{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.rowS button{padding:6px 2px 8px;font-size:12.5px}
+.rowC{display:grid;grid-template-columns:1fr 1fr 1fr .55fr 1.5fr;gap:6px}
+.rowC button{font-size:11.5px;padding:7px 1px 9px;margin:0}
 #ov{position:absolute;inset:0;background:rgba(22,36,60,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:18px;text-align:center;z-index:5;overflow:auto}
 #ov h1{font-size:28px;font-weight:800;letter-spacing:.02em;color:var(--gold);text-shadow:0 2px 0 rgba(0,0,0,.35)}
 #ov p{font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.45;max-width:410px}
@@ -64,9 +66,9 @@ button.on{background:var(--sel)}
     <canvas id="c"></canvas>
     <div id="ov">
       <h1>Фронт</h1>
-      <p id="ovp"><b>Палец по карте</b> двигает камеру, два пальца — зум. <b>Тап по своему</b> выделяет его, <b>удержи и тяни</b> (или «Рамка») — выделение рамкой, <b>тап по флажку сбора</b> — весь собранный там отряд. Кнопки ●◆■▲ оставляют один род войск, «½» — половину. <b>Тап по земле</b> отправляет выделенных.<br>
-      <b>★ Командир</b> — твой герой: враги роняют золото, он его подбирает и относит к штабу или форпосту. <b>База</b> открывает новые войска и разрешает их улучшать.<br>
-      <b>Тап по своему форпосту или штабу</b> — войска выходят оттуда. ПТ жжёт танки, танки давят пехоту, арта бьёт издали. Лес прикрывает, холм добавляет дальности, дорога ускоряет.</p>
+      <p id="ovp">Ты управляешь только <b>командиром ★</b>: веди пальцем по карте — это джойстик (на клавиатуре WASD). Два пальца — зум. Камера идёт за ним, стреляет он сам.<br>
+      Купленные войска собираются на <b>плацах</b> у штаба. Кнопка отряда <b>▶</b> отправляет его в бой: он сам идёт на ближайшую чужую шахту или форпост, а когда их не останется — на вражеский штаб. <b>↩</b> возвращает отряд на плац лечиться и пополняться. <b>«За мной»</b> — отряды в поле идут за командиром.<br>
+      Враги роняют <b>золото</b>: подбирает его только командир и относит к штабу или своему форпосту. <b>База</b> открывает новые войска, их улучшения и новые плацы.</p>
       <div class="lbl">Карта</div>
       <div class="d m" id="maps">
         <button data-m="rand">Случай</button>
@@ -86,24 +88,12 @@ button.on{background:var(--sel)}
   </div>
   <div id="panel">
     <div class="row" id="units"></div>
-    <div class="row5" id="flt">
-      <button data-f="all" class="on">Все</button>
-      <button data-f="inf">●</button>
-      <button data-f="at">◆</button>
-      <button data-f="tank">■</button>
-      <button data-f="art">▲</button>
-      <button data-f="hero">★</button>
-    </div>
-    <div class="row6">
-      <button id="box">Рамка</button>
-      <button id="half">½</button>
-      <button id="desel">Снять</button>
-      <button id="rally">Сбор</button>
-      <button id="mode">Бой</button>
-      <button id="atk" class="atk">Атака</button>
-    </div>
-    <div class="row2">
-      <button id="amt">Закупка ×1</button>
+    <div class="rowS" id="sq"></div>
+    <div class="rowC">
+      <button id="fol">За мной</button>
+      <button id="allgo" class="atk">Все в бой</button>
+      <button id="allback">Назад</button>
+      <button id="amt">×1</button>
       <button id="eco" class="up">База</button>
     </div>
   </div>
@@ -138,7 +128,10 @@ const GOLD='#ffc93c';
 const cv=document.getElementById('c'),ctx=cv.getContext('2d'),wrap=document.getElementById('wrap');
 const dpr=Math.min(2,window.devicePixelRatio||1);
 let vw=300,vh=300,minZ=.3;const maxZ=2.2,cam={x:0,y:0,z:1};
-let S,units,mines,fx,toasts=[],time,running=false,paused=false,speed=1,diff=1,ai,gest=null,buyAmt=1,over=false,march=false,decals=[],coins=[],hero=null,heroT=0;
+let S,units,mines,fx,toasts=[],time,running=false,paused=false,speed=1,diff=1,ai,gest=null,buyAmt=1,over=false,march=false,decals=[],coins=[],hero=null,heroT=0,squads=[],pads=[],follow=false;
+const SQCAP=12,nPads=()=>Math.min(6,1+S[1].base);
+function sqN(){const n=[0,0,0,0,0,0];for(const u of units)if(u.s==1&&u.sq>=0)n[u.sq]++;return n}
+function freePad(){const n=sqN();for(let i=0;i<nPads();i++)if(squads[i].state=='home'&&n[i]<SQCAP)return i;return -1}
 let mapKind='rand',mapName='',fog=true,alertT=-99;
 let terC=null,mmC=null,frame=0,repathBudget=0;
 try{const p=JSON.parse(localStorage.getItem('front')||'{}');if(MAPNAME[p.map]||p.map=='rand')mapKind=p.map;if(p.fog===false)fog=false}catch(_){}
@@ -210,7 +203,7 @@ function genMap(kind){
         if(x==sx&&sideT!=FORD)side=(34+off+th)*GC+x}
     }else for(let dx=-1;dx<=1;dx++)for(let dy=0;dy<=1;dy++)set(20+dx,35+dy,P);
     const hx=ri(9,30),hy=GR-4;
-    for(let dx=-4;dx<=4;dx++)for(let dy=-4;dy<=4;dy++)if(dx*dx+dy*dy<=20)set(hx+dx,hy+dy,P);
+    for(let dx=-7;dx<=7;dx++)for(let dy=-7;dy<=7;dy++)if(dx*dx+dy*dy<=50)set(hx+dx,hy+dy,P);
     const ms=[];
     const place=(x,y)=>{const mx=GC-1-x,my=GR-1-y;
       if(Math.hypot(x-hx,y-hy)<8||Math.hypot(x-mx,y-my)<7)return false;
@@ -291,6 +284,8 @@ function newGame(){
   units=[];fx=[];toasts=[];decals=[];time=0;over=false;paused=false;mines=m.mines;alertT=-99;
   ai={t:0,wave:25,def:1};coins=[];hero=null;heroT=0;
   for(const s of[1,2])homeRally(s,S[s].hq);
+  squads=[];pads=[];follow=false;
+  {const b=Math.atan2(H/2-h1.y,W/2-h1.x);for(const a of[-.38,.38,-1.1,1.1,-1.8,1.8]){const[x,y]=fixDest(h1.x+Math.cos(b+a)*112,h1.y+Math.sin(b+a)*112);pads.push({x,y});squads.push({state:'home',t:0,tgt:null})}}
   spawnHero();
   fogA.fill(fog?1:0);updFog(1);
   cam.z=clamp(vw/400,minZ,maxZ);cam.x=h1.x-vw/cam.z/2;cam.y=h1.y+100/cam.z-vh/cam.z;clampCam();
@@ -298,8 +293,8 @@ function newGame(){
 }
 function mkSide(s,hq){const h={s,x:hq.x,y:hq.y,r:18,hp:3000,max:3000,cd:0,isHQ:true,dead:false};return{gold:60,base:1,lost:0,src:h,lvl:{inf:1,at:1,tank:1,art:1},rally:{},rpath:{},rsrc:{},
   hq:h}}
-function spawnHero(){const hq=S[1].hq,t=T.hero,x=hq.x,y=hq.y-30;
-  hero={s:1,k:'hero',x,y,ox:x,oy:y,lx:x,ly:y,st:0,nc:0,march:false,sel:false,a:-1.57,ta:-1.57,r:t.r,hp:t.hp,max:t.hp,dmg:t.dmg,cd:0,rt:0,target:null,dead:false,tx:x,ty:y,path:null,pi:0,carry:0};units.push(hero)}
+function spawnHero(){const hq=S[1].hq,t=T.hero,x=hq.x,y=hq.y-34,m=1+.25*(S[1].base-1);
+  hero={s:1,k:'hero',x,y,ox:x,oy:y,lx:x,ly:y,st:0,nc:0,march:false,sel:false,a:-1.57,ta:-1.57,r:t.r,hp:t.hp*m,max:t.hp*m,dmg:t.dmg*m,cd:0,rt:0,target:null,dead:false,tx:x,ty:y,path:null,pi:0,carry:0,sq:-1};units.push(hero)}
 function homeRally(s,base){const dx=W/2-base.x,dy=H/2-base.y,d=Math.hypot(dx,dy)||1;setRally(s,KEYS,base.x+dx/d*75,base.y+dy/d*75)}
 // troops come out of the side's chosen source: the HQ or an owned outpost
 function setRally(s,keys,x,y){[x,y]=fixDest(x,y);const sd=S[s],src=sd.src;
@@ -315,14 +310,15 @@ function count(s){let n=0;for(const u of units)if(u.s==s)n++;return n}
 const turn=(a,b,k)=>a+(((b-a+9.4248)%6.2832)-3.1416)*Math.min(1,k);
 
 function spawn(s,k){
-  const t=T[k],sd=S[s],m=1+.2*(sd.lvl[k]-1),a=Math.random()*6.28,rl=sd.rally[k],src=sd.rsrc[k];
+  const t=T[k],sd=S[s],m=1+.2*(sd.lvl[k]-1),a=Math.random()*6.28,pd=s==1?freePad():-1,rl=pd>=0?pads[pd]:sd.rally[k],src=pd>=0?sd.hq:sd.rsrc[k];
   let tx=rl.x+(Math.random()-.5)*40,ty=rl.y+(Math.random()-.5)*30;if(!pass(tx,ty)){tx=rl.x;ty=rl.y}
   let x=src.x+Math.cos(a)*22,y=src.y+Math.sin(a)*22;if(!pass(x,y)){x=src.x;y=src.y}
-  units.push({s,k,x,y,ox:x,oy:y,lx:x,ly:y,st:0,nc:0,march:false,sel:false,a:s==1?-1.57:1.57,ta:s==1?-1.57:1.57,r:t.r,hp:t.hp*m,max:t.hp*m,dmg:t.dmg*m,cd:Math.random()*t.cd,rt:0,target:null,dead:false,tx,ty,path:sd.rpath[k],pi:0});
+  units.push({s,k,x,y,ox:x,oy:y,lx:x,ly:y,st:0,nc:0,march:false,sel:false,a:s==1?-1.57:1.57,ta:s==1?-1.57:1.57,r:t.r,hp:t.hp*m,max:t.hp*m,dmg:t.dmg*m,cd:Math.random()*t.cd,rt:0,target:null,dead:false,tx,ty,path:pd>=0?null:sd.rpath[k],pi:0,sq:pd});
 }
-function buy(s,k,n){if(S[s].base<REQ[k])return;for(let i=0;i<n;i++){if(S[s].gold<T[k].cost||count(s)>=CAP)return;S[s].gold-=T[k].cost;spawn(s,k)}}
+function buy(s,k,n){if(S[s].base<REQ[k])return;for(let i=0;i<n;i++){if(S[s].gold<T[k].cost||(s==1?freePad()<0:count(s)>=Math.min(CAP,(1+S[s].base)*22*diff)))return;S[s].gold-=T[k].cost;spawn(s,k)}}
 function upgrade(s,k){const c=upCost(k,s);if(S[s].lvl[k]<S[s].base&&S[s].gold>=c){S[s].gold-=c;S[s].lvl[k]++}}
-function upBase(s){const sd=S[s],c=baseCost(s);if(sd.base<MAXBASE&&sd.gold>=c){sd.gold-=c;sd.base++;sd.hq.max+=500;sd.hq.hp+=500}}
+function upBase(s){const sd=S[s],c=baseCost(s);if(sd.base<MAXBASE&&sd.gold>=c){sd.gold-=c;sd.base++;sd.hq.max+=500;sd.hq.hp+=500;
+  if(s==1){toast('База '+sd.base+': новый плац'+(sd.base<=4?', открыты '+T[KEYS[sd.base-1]].name.toLowerCase():''));if(hero){const m=1+.25*(sd.base-1);hero.max=T.hero.hp*m;hero.hp=Math.min(hero.max,hero.hp+T.hero.hp*.25);hero.dmg=T.hero.dmg*m}}}}
 
 // spatial grid for units
 const CELL=32,UC=Math.ceil(W/CELL),UR=Math.ceil(H/CELL);let grid=[];
@@ -344,7 +340,23 @@ function splash(s,x,y,rad,a,k){for(const o of units)if(o.s!=s&&!o.dead&&(o.x-x)*
   const hq=S[3-s].hq;if(Math.hypot(hq.x-x,hq.y-y)<rad+hq.r)damage(hq,a,k);}
 
 function repath(u){const[x,y]=fixDest(u.tx,u.ty);u.tx=x;u.ty=y;u.path=getPath(u.x,u.y,fieldC(nearPass(x,y)),x,y);u.pi=0}
+function heroUpd(u,dt){const t=T.hero,tt=tAt(u.x,u.y),rng=t.range*(tt==HILL?1.25:1),sd=S[1];u.cd-=dt;u.rt-=dt;
+  if(u.hp<u.max){let heal=(u.x-sd.hq.x)**2+(u.y-sd.hq.y)**2<95*95;
+    if(!heal)for(const m of mines)if(m.kind=='post'&&m.owner==1&&(u.x-m.x)**2+(u.y-m.y)**2<3600)heal=true;
+    if(heal)u.hp=Math.min(u.max,u.hp+u.max*.05*dt)}
+  if(u.target&&u.target.dead)u.target=null;
+  if(u.rt<=0){u.rt=.15;let n=nearestEnemy(u,rng+12);const hq=S[2].hq;if(!n&&!hq.dead&&Math.hypot(hq.x-u.x,hq.y-u.y)<rng+hq.r)n=hq;u.target=n}
+  if(u.target){const g=u.target,d=Math.hypot(g.x-u.x,g.y-u.y);
+    if(d<=rng+g.r&&u.cd<=0){u.cd=t.cd;damage(g,u.dmg,'hero');const fa=Math.atan2(g.y-u.y,g.x-u.x);
+      fx.push({type:'line',x1:u.x,y1:u.y,x2:g.x,y2:g.y,c:'#fff3c4',w:1.2,life:.09,max:.09},{type:'flash',x:u.x+Math.cos(fa)*7,y:u.y+Math.sin(fa)*7,r:1.8,life:.07,max:.07})}}
+  const j=jvec();
+  if(j.m>.02){let m=SPD[tt]||.5;const sp=t.speed*m*dt,nx=u.x+j.x*sp,ny=u.y+j.y*sp;
+    if(pass(nx,ny)){u.x=nx;u.y=ny}else if(pass(nx,u.y))u.x=nx;else if(pass(u.x,ny))u.y=ny;
+    u.a=turn(u.a,Math.atan2(j.y,j.x),dt*10)}
+  else if(u.target)u.a=turn(u.a,Math.atan2(u.target.y-u.y,u.target.x-u.x),dt*8);
+  u.ox=u.x;u.oy=u.y}
 function updUnit(u,dt){
+  if(u===hero){heroUpd(u,dt);return}
   const t=T[u.k],tt=tAt(u.x,u.y),rng=t.range*(tt==HILL?1.25:1),sd=S[u.s];u.cd-=dt;u.rt-=dt;u.nc-=dt;
   if(u.hp<u.max){let heal=(u.x-sd.hq.x)**2+(u.y-sd.hq.y)**2<95*95;
     if(!heal)for(const m of mines)if(m.kind=='post'&&m.owner==u.s&&(u.x-m.x)**2+(u.y-m.y)**2<3600)heal=true;
@@ -397,7 +409,7 @@ function updMines(dt){
     if(m.owner==1&&m.prog<0)m.owner=0;if(m.owner==2&&m.prog>0)m.owner=0;
     if(m.prog>=1)m.owner=1;if(m.prog<=-1)m.owner=2;
     if(m.owner!=was){const nm=m.kind=='post'?'Форпост':'Шахта';
-      if(m.owner==1)toast(m.kind=='post'?'Форпост взят — тапни по нему, чтобы войска выходили оттуда':'Шахта взята');else if(was==1)toast(nm+(m.kind=='post'?' потерян':' потеряна'));
+      if(m.owner==1)toast(m.kind=='post'?'Форпост взят: сюда можно сдавать золото':'Шахта взята');else if(was==1)toast(nm+(m.kind=='post'?' потерян':' потеряна'));
       if(m.kind=='post'){if(S[1].src===m&&m.owner!=1){S[1].src=S[1].hq;homeRally(1,S[1].hq)}
         const p=mines.find(o=>o.kind=='post'&&o.owner==2)||S[2].hq;if(S[2].src!==p){S[2].src=p;homeRally(2,p)}}}}
 }
@@ -422,7 +434,7 @@ function updAI(dt){
   if(ai.t<=0){ai.t=.7;
     if(Math.random()<.15){const k=KEYS[Math.random()*4|0];
       if(sd.gold>upCost(k,s)*1.3)upgrade(s,k)}
-    const saving=sd.base<MAXBASE&&time>35*sd.base;if(saving&&sd.gold>=baseCost(s))upBase(s);
+    const saving=sd.base<MAXBASE&&time>22*sd.base;if(saving&&sd.gold>=baseCost(s))upBase(s);
     const pc={inf:0,at:0,tank:0,art:0};let pn=0;for(const u of units)if(u.s==1){pc[u.k]++;pn++}
     const ts=pn?pc.tank/pn:0,is=pn?(pc.inf+pc.at)/pn:.6;
     const w={inf:3,at:sd.base>=2?.4+7*ts:0,tank:sd.base>=3?1+2.5*is:0,art:sd.base>=4?.6+1.6*is:0};
@@ -466,98 +478,54 @@ function endGame(win){if(over)return;over=true;running=false;gest=null;
   ov.querySelector('h1').textContent=win?'Победа':'Разгром';
   document.getElementById('ovp').innerHTML=`Карта «${mapName}», время <b>${fmt(time)}</b>.<br>Уничтожено <b>${S[2].lost}</b>, потеряно <b>${S[1].lost}</b>, шахт у тебя <b>${mines.filter(m=>m.owner==1&&m.kind=='mine').length}</b>.`;}
 
-// ---------- selection & orders ----------
-const selU=()=>units.filter(u=>u.s==1&&u.sel);
-function setSel(list){for(const u of units)u.sel=false;for(const u of list)u.sel=true;if(S)hud()}
-function typeBtn(f){const all=units.filter(u=>u.s==1),sel=all.filter(u=>u.sel);
-  if(f=='all'){const army=all.filter(u=>u.k!='hero');setSel(army.length&&army.every(u=>u.sel)?[]:army);return}
-  const of=all.filter(u=>u.k==f),inSel=sel.filter(u=>u.k==f);
-  if(inSel.length&&inSel.length<sel.length)setSel(inSel);      // mixed selection: keep only this kind
-  else if(inSel.length&&inSel.length==of.length)setSel([]);
-  else setSel(of)}
-function halve(){const sel=selU();if(sel.length<2)return;const keep=[];let i=0;
-  for(const k of KEYS)for(const u of sel.filter(u=>u.k==k).sort((p,q)=>p.x-q.x||p.y-q.y))if(i++%2==0)keep.push(u);
-  setSel(keep)}
-let hintT=-99,lastTap=null,boxArm=false,rallyArm=false;
-function order(p){const sel=selU();
-  if(!sel.length){if(time-hintT>4){hintT=time;toast('Сначала выдели войска: рамка или ●◆■▲')}return}
-  send(sel,p.x,p.y,march);fx.push({type:'ping',x:p.x,y:p.y,life:.5,max:.5})}
-function handleTap(p){
-  if(rallyArm){const sel=selU(),ks=sel.length?KEYS.filter(k=>sel.some(u=>u.k==k)):KEYS;
-    if(!ks.length)ks.push(...KEYS);setRally(1,ks,p.x,p.y);setArm('rally',false);const r=S[1].rally[ks[0]];fx.push({type:'ping',x:r.x,y:r.y,life:.5,max:.5});
-    toast('Точка сбора: '+(ks.length==4?'все':ks.map(k=>T[k].sym).join(' ')));return}
-  const R=Math.max(9,20/cam.z),sd=S[1];
-  // own outpost or HQ: make it the place troops come out of
-  for(const b of[sd.hq,...mines.filter(m=>m.kind=='post'&&m.owner==1)])if(b!==sd.src&&Math.hypot(b.x-p.x,b.y-p.y)<Math.max(18,R)){
-    sd.src=b;homeRally(1,b);toast(b.isHQ?'Войска выходят из штаба':'Войска выходят из форпоста');return}
-  // rally flag: pick up the squad gathered around it
-  for(const k of KEYS){const r=sd.rally[k];if(Math.hypot(r.x-p.x,r.y-p.y)<Math.max(13,R)){
-    const sq=units.filter(u=>u.s==1&&u.k!='hero'&&Math.hypot(u.x-r.x,u.y-r.y)<85);if(sq.length){setSel(sq);toast('Отряд у сбора: '+sq.length);return}}}
-  let best=null,bd=R*R;
-  for(const u of units)if(u.s==1){const d=(u.x-p.x)**2+(u.y-p.y)**2;if(d<bd){bd=d;best=u}}
-  const now=performance.now();
-  if(best){
-    if(lastTap&&now-lastTap.t<380&&lastTap.k==best.k){const a=toW(0,0),b=toW(vw,vh);
-      setSel(units.filter(u=>u.s==1&&u.k==best.k&&u.x>=a.x&&u.x<=b.x&&u.y>=a.y&&u.y<=b.y))}
-    else setSel([best]);
-    lastTap={t:now,k:best.k};return}
-  lastTap=null;order(p)}
+// ---------- squads: gather on pads by the HQ, go out on command ----------
+function sqUnits(i){return units.filter(u=>u.s==1&&u.sq===i)}
+function sqGo(i){const q=squads[i];if(i>=nPads())return;
+  if(q.state=='home'){if(!sqUnits(i).length)return;q.state='field';q.t=0;q.tgt=null}
+  else{q.state='home';q.tgt=null;send(sqUnits(i),pads[i].x,pads[i].y,true)}}
+function updSquads(dt){
+  for(let i=0;i<squads.length;i++){const q=squads[i];if(q.state!='field')continue;
+    const us=sqUnits(i);if(!us.length){q.state='home';q.tgt=null;continue}
+    q.t-=dt;if(q.t>0)continue;q.t=2;
+    let cx=0,cy=0;for(const u of us){cx+=u.x;cy+=u.y}cx/=us.length;cy/=us.length;
+    if(follow&&hero){q.tgt=null;if(Math.hypot(cx-hero.x,cy-hero.y)>70)send(us,hero.x,hero.y);continue}
+    if(q.tgt&&!q.tgt.isHQ&&q.tgt.owner==1)q.tgt=null;
+    if(!q.tgt){let b=S[2].hq,bd=1e9;for(const m of mines)if(m.owner!=1){const d=Math.hypot(m.x-cx,m.y-cy);if(d<bd){bd=d;b=m}}
+      q.tgt=b;send(us,b.x,b.y)}}
+}
 
-// ---------- camera & input ----------
-// touch: drag pans, pinch zooms, tap selects a unit or orders the selection, hold-then-drag (or the Рамка button) draws a selection box
-// mouse: left drag draws the box, right drag pans, right click orders
+// ---------- camera & input: the player only steers the commander ----------
 function resize(){vw=Math.max(50,wrap.clientWidth);vh=Math.max(50,wrap.clientHeight);
   cv.style.width=vw+'px';cv.style.height=vh+'px';cv.width=Math.round(vw*dpr);cv.height=Math.round(vh*dpr);
   minZ=Math.min(vw/W,vh/H);clampCam()}
 function clampCam(){cam.z=clamp(cam.z,minZ,maxZ);const sw=vw/cam.z,sh=vh/cam.z;
   cam.x=sw>=W?(W-sw)/2:clamp(cam.x,0,W-sw);cam.y=sh>=H?(H-sh)/2:clamp(cam.y,0,H-sh)}
-const toW=(x,y)=>({x:cam.x+x/cam.z,y:cam.y+y/cam.z});
-function zoomAt(x,y,f){const w=toW(x,y);cam.z=clamp(cam.z*f,minZ,maxZ);cam.x=w.x-x/cam.z;cam.y=w.y-y/cam.z;clampCam()}
 function mmRect(){const w=clamp(vw*.17,56,92);return{x:vw-w-8,y:8,w,h:w*H/W}}
-function mmMove(p){const m=mmRect();cam.x=(p.x-m.x)/m.w*W-vw/cam.z/2;cam.y=(p.y-m.y)/m.h*H-vh/cam.z/2;clampCam()}
 function sp(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-const ptrs=new Map();let mmId=null,pinch=null;
-function pinchState(){const[a,b]=[...ptrs.values()];return{d:Math.hypot(a.x-b.x,a.y-b.y)||1,x:(a.x+b.x)/2,y:(a.y+b.y)/2}}
+const ptrs=new Map();let pinch=null,joy=null;
+function pinchD(){const[a,b]=[...ptrs.values()];return Math.hypot(a.x-b.x,a.y-b.y)||1}
 cv.addEventListener('pointerdown',e=>{if(!running)return;try{cv.setPointerCapture(e.pointerId)}catch(_){}
-  const p=sp(e),m=mmRect();
-  if(p.x>=m.x&&p.x<=m.x+m.w&&p.y>=m.y&&p.y<=m.y+m.h){mmId=e.pointerId;mmMove(p);return}
-  ptrs.set(e.pointerId,p);
-  if(ptrs.size>=2){gest=null;pinch=pinchState();return}
-  const mouse=e.pointerType=='mouse';
-  gest={id:e.pointerId,mode:boxArm&&!(mouse&&e.button!=0)?'box':'pending',x0:p.x,y0:p.y,px:p.x,py:p.y,t0:performance.now(),w:toW(p.x,p.y),mouse,btn:e.button,held:false}});
-cv.addEventListener('pointermove',e=>{const p=sp(e);
-  if(mmId===e.pointerId){mmMove(p);return}
-  if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,p);
-  if(ptrs.size>=2&&pinch){const n=pinchState(),w=toW(pinch.x,pinch.y);cam.z=clamp(cam.z*n.d/pinch.d,minZ,maxZ);
-    cam.x=w.x-n.x/cam.z;cam.y=w.y-n.y/cam.z;clampCam();pinch=n;return}
-  const g=gest;if(!g||g.id!==e.pointerId)return;
-  const dx=p.x-g.px,dy=p.y-g.py;g.px=p.x;g.py=p.y;
-  if(g.mode=='pending'&&Math.hypot(p.x-g.x0,p.y-g.y0)>9)g.mode=g.mouse&&g.btn==0?'box':'pan';
-  if(g.mode=='pan'){cam.x-=dx/cam.z;cam.y-=dy/cam.z;clampCam()}});
-function pEnd(e,ok){if(mmId===e.pointerId)mmId=null;
-  ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;
-  const g=gest;if(!g||g.id!==e.pointerId)return;gest=null;if(!ok||!running)return;
-  const en=toW(g.px,g.py);
-  if(g.mode=='pending'){if(g.mouse&&g.btn!=0)order(en);else handleTap(en);return}
-  if(g.mode=='box'){
-    if(Math.abs(g.px-g.x0)<8&&Math.abs(g.py-g.y0)<8){if(!g.held)handleTap(en);return}
-    const x0=Math.min(g.w.x,en.x),x1=Math.max(g.w.x,en.x),y0=Math.min(g.w.y,en.y),y1=Math.max(g.w.y,en.y);
-    setSel(units.filter(u=>u.s==1&&u.x>=x0&&u.x<=x1&&u.y>=y0&&u.y<=y1));setArm('box',false)}}
-cv.addEventListener('pointerup',e=>pEnd(e,true));
-cv.addEventListener('pointercancel',e=>pEnd(e,false));
+  const p=sp(e);ptrs.set(e.pointerId,p);
+  if(ptrs.size>=2){joy=null;pinch=pinchD()}else joy={id:e.pointerId,x0:p.x,y0:p.y,x:p.x,y:p.y}});
+cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;const p=sp(e);ptrs.set(e.pointerId,p);
+  if(ptrs.size>=2&&pinch){const d=pinchD();cam.z=clamp(cam.z*d/pinch,minZ,maxZ);pinch=d;clampCam()}
+  else if(joy&&joy.id===e.pointerId){joy.x=p.x;joy.y=p.y}});
+function pEnd(e){ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(joy&&joy.id===e.pointerId)joy=null}
+cv.addEventListener('pointerup',pEnd);cv.addEventListener('pointercancel',pEnd);
 cv.addEventListener('contextmenu',e=>e.preventDefault());
-cv.addEventListener('wheel',e=>{e.preventDefault();if(!running)return;const p=sp(e);zoomAt(p.x,p.y,Math.exp(-e.deltaY*.0015))},{passive:false});
+cv.addEventListener('wheel',e=>{e.preventDefault();if(running){cam.z=clamp(cam.z*Math.exp(-e.deltaY*.0015),minZ,maxZ);clampCam()}},{passive:false});
 const keys={};
 addEventListener('keydown',e=>{keys[e.code]=true;if(!running)return;
-  const i=['Digit1','Digit2','Digit3','Digit4','Digit5'].indexOf(e.code);if(i>=0)typeBtn(['all',...KEYS][i]);
-  if(e.code=='Space'){e.preventDefault();setPause(!paused)}
-  if(e.code=='KeyM')setMarch(!march);if(e.code=='Escape')setSel([]);if(e.code=='KeyH')halve()});
+  const i=['Digit1','Digit2','Digit3','Digit4','Digit5','Digit6'].indexOf(e.code);if(i>=0)sqGo(i);
+  if(e.code=='Space'){e.preventDefault();setPause(!paused)}if(e.code=='KeyF')setFollow(!follow)});
 addEventListener('keyup',e=>{keys[e.code]=false});
-function camTick(dt){const v=520/cam.z*dt;let dx=0,dy=0;const g=gest;
-  if(keys.ArrowLeft||keys.KeyA)dx-=v;if(keys.ArrowRight||keys.KeyD)dx+=v;if(keys.ArrowUp||keys.KeyW)dy-=v;if(keys.ArrowDown||keys.KeyS)dy+=v;
-  if(g&&g.mode=='pending'&&!g.mouse&&performance.now()-g.t0>330){g.mode='box';g.held=true}
-  if(g&&g.mode=='box'&&Math.hypot(g.px-g.x0,g.py-g.y0)>30){const e=26;if(g.px<e)dx-=v;if(g.px>vw-e)dx+=v;if(g.py<e)dy-=v;if(g.py>vh-e)dy+=v}
-  if(dx||dy){cam.x+=dx;cam.y+=dy;clampCam()}}
+// joystick vector: drag from the touch point, or WASD / arrows
+function jvec(){let x=0,y=0;
+  if(joy){const dx=joy.x-joy.x0,dy=joy.y-joy.y0,l=Math.hypot(dx,dy);if(l>6){const m=Math.min(1,l/46);x=dx/l*m;y=dy/l*m}}
+  if(keys.ArrowLeft||keys.KeyA)x-=1;if(keys.ArrowRight||keys.KeyD)x+=1;if(keys.ArrowUp||keys.KeyW)y-=1;if(keys.ArrowDown||keys.KeyS)y+=1;
+  const l=Math.hypot(x,y);if(l>1){x/=l;y/=l}return{x,y,m:Math.min(1,l)}}
+function camTick(dt){const f=hero||S[1].hq,k=Math.min(1,dt*6);
+  cam.x+=(f.x-vw/cam.z/2-cam.x)*k;cam.y+=(f.y-vh/cam.z/2-cam.y)*k;clampCam()}
 
 // ---------- UI ----------
 const $=id=>document.getElementById(id);
@@ -566,45 +534,38 @@ for(const k of KEYS){const d=document.createElement('div');d.className='u';
   d.innerHTML=`<div class="n">${T[k].sym} ${T[k].name}</div><div>${T[k].hint}</div><button class="buy" id="b_${k}"></button><button class="up" id="u_${k}"></button>`;
   uEl.appendChild(d);
   d.querySelector('.buy').onclick=()=>{if(running)buy(1,k,buyAmt)};d.querySelector('.up').onclick=()=>{if(running)upgrade(1,k)};}
-$('amt').onclick=e=>{buyAmt=buyAmt==1?5:buyAmt==5?10:1;e.target.textContent='Закупка ×'+buyAmt};
+const sqEl=$('sq');
+for(let i=0;i<6;i++){const b=document.createElement('button');b.id='sq'+i;b.onclick=()=>{if(running){sqGo(i);hud()}};sqEl.appendChild(b)}
+$('amt').onclick=e=>{buyAmt=buyAmt==1?5:buyAmt==5?10:1;e.target.textContent='×'+buyAmt};
 $('eco').onclick=()=>{if(running)upBase(1)};
-$('atk').onclick=()=>{if(!running)return;const sel=selU();send(sel.length?sel:units.filter(u=>u.s==1&&u.k!='hero'),S[2].hq.x,S[2].hq.y)};
-function setMarch(v){march=v;const b=$('mode');b.textContent=v?'Марш':'Бой';b.classList.toggle('on',v)}
-$('mode').onclick=()=>setMarch(!march);
-function setArm(w,v){if(w=='box'){boxArm=v;if(v)rallyArm=false}else{rallyArm=v;if(v){boxArm=false;toast('Тапни по карте — там будет точка сбора')}}
-  $('box').classList.toggle('on',boxArm);$('rally').classList.toggle('on',rallyArm)}
-$('box').onclick=()=>setArm('box',!boxArm);
-$('rally').onclick=()=>setArm('rally',!rallyArm);
-$('half').onclick=halve;
-$('desel').onclick=()=>setSel([]);
+function setFollow(v){follow=v;$('fol').classList.toggle('on',v);for(const q of squads){q.t=0;q.tgt=null}}
+$('fol').onclick=()=>setFollow(!follow);
+$('allgo').onclick=()=>{if(running){for(let i=0;i<nPads();i++)if(squads[i].state=='home')sqGo(i);hud()}};
+$('allback').onclick=()=>{if(running){for(let i=0;i<nPads();i++)if(squads[i].state=='field')sqGo(i);hud()}};
 function setPause(v){paused=v;$('pz').classList.toggle('on',v)}
 $('pz').onclick=()=>{if(running)setPause(!paused)};
 $('spd').onclick=e=>{speed=speed==1?2:speed==2?3:1;e.target.textContent='×'+speed;e.target.classList.toggle('on',speed>1)};
-document.querySelectorAll('#flt button').forEach(b=>b.onclick=()=>{if(running)typeBtn(b.dataset.f)});
 function mapBtns(){document.querySelectorAll('#maps button').forEach(o=>o.classList.toggle('on',o.dataset.m==mapKind));
   const f=$('fogb');f.textContent='Туман войны: '+(fog?'вкл':'выкл');f.classList.toggle('on',fog)}
 document.querySelectorAll('#maps button').forEach(b=>b.onclick=()=>{mapKind=b.dataset.m;mapBtns();savePrefs()});
 $('fogb').onclick=()=>{fog=!fog;mapBtns();savePrefs()};
-document.querySelectorAll('#ov [data-d]').forEach(b=>b.onclick=()=>{diff=+b.dataset.d;newGame();setPause(false);setArm('box',false);setArm('rally',false);running=true;$('ov').hidden=true});
+document.querySelectorAll('#ov [data-d]').forEach(b=>b.onclick=()=>{diff=+b.dataset.d;newGame();setPause(false);setFollow(false);joy=null;running=true;$('ov').hidden=true});
 const fmt=t=>`${t/60|0}:${String(t%60|0).padStart(2,'0')}`;
 let hudT=0;
-function hud(){const sd=S[1],n={inf:0,at:0,tank:0,art:0},sn={inf:0,at:0,tank:0,art:0,hero:0};let mine=0,foe=0,sel=0;
-  for(const u of units)if(u.s==1){if(u.k!='hero'){n[u.k]++;mine++}if(u.sel){sn[u.k]++;sel++}}else foe++;
+function hud(){const sd=S[1],n=sqN(),room=freePad()>=0;let mine=0,foe=0;
+  for(const u of units)if(u.s==2)foe++;else if(u.k!='hero')mine++;
   $('gold').textContent=sd.gold|0;
-  $('inc').textContent=`+${income(1)}/с`;
+  $('inc').textContent=`+${income(1)}/с`+(hero&&hero.carry?` · несёт ${hero.carry}`:hero?'':` · командир ${Math.ceil(heroT)}с`);
   $('cnt').innerHTML=`<span style="color:${COL[1]}">${mine}</span> : <span style="color:${COL[2]}">${fog?'?':foe}</span>`;
   $('tm').textContent=fmt(time);
   for(const k of KEYS){const b=$('b_'+k),u=$('u_'+k);
     const lock=sd.base<REQ[k],cap=sd.lvl[k]>=sd.base;
-    b.textContent=lock?`база ${REQ[k]}`:T[k].cost*buyAmt;b.disabled=lock||sd.gold<T[k].cost;
+    b.textContent=lock?`база ${REQ[k]}`:room?T[k].cost*buyAmt:'плац полон';b.disabled=lock||!room||sd.gold<T[k].cost;
     u.textContent=cap?`ур.${sd.lvl[k]} · база ${sd.base+1}`:`ур.${sd.lvl[k]} ↑${upCost(k,1)}`;u.disabled=lock||cap||sd.gold<upCost(k,1);}
-  document.querySelectorAll('#flt button').forEach(b=>{const f=b.dataset.f;
-    if(f=='all'){const a=sel-sn.hero;b.textContent=`Все ${a?a+'/':''}${mine}`;b.classList.toggle('on',a>0&&a==mine)}
-    else if(f=='hero'){b.textContent=hero?'★'+(hero.carry?' '+hero.carry:''):`★ ${Math.ceil(heroT)}с`;b.classList.toggle('on',sn.hero>0);b.disabled=!hero}
-    else{b.textContent=`${T[f].sym} ${sn[f]?sn[f]+'/':''}${n[f]}`;b.classList.toggle('on',sn[f]>0)}});
-  $('half').disabled=sel<2;$('desel').disabled=!sel;
-  $('atk').textContent=sel?`Атака ${sel}`:'Атака';
-  const e=$('eco'),mx=sd.base>=MAXBASE;e.textContent=mx?`База ${sd.base} (макс.)`:`База ${sd.base} ↑${baseCost(1)}`;e.disabled=mx||sd.gold<baseCost(1);}
+  for(let i=0;i<6;i++){const b=$('sq'+i),q=squads[i],open=i<nPads();b.hidden=i>nPads();
+    b.disabled=!open||(q.state=='home'&&!n[i]);b.classList.toggle('atk',open&&q.state=='field');
+    b.textContent=!open?`плац · база ${i}`:q.state=='home'?`${i+1} · ${n[i]}/${SQCAP} ▶`:`${i+1} · ${n[i]} ↩`}
+  const e=$('eco'),mx=sd.base>=MAXBASE;e.textContent=mx?`База ${sd.base} макс.`:`База ${sd.base} ↑${baseCost(1)}`;e.disabled=mx||sd.gold<baseCost(1);}
 
 // ---------- sprites: small top-down models, drawn once per side and rotated when blitted ----------
 const OUT='#1c2a3a',MET='#3a4654';
@@ -685,14 +646,14 @@ function draw(){
       ctx.fillStyle='rgba(255,255,255,.3)';ctx.beginPath();ctx.moveTo(x,y-q);ctx.lineTo(x+q*.8,y);ctx.lineTo(x,y);ctx.fill();
       if(m.val>3){ctx.strokeStyle='rgba(216,184,96,.55)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,R+7,0,6.283);ctx.stroke()}}}
   for(const s of [1,2])if(!S[s].hq.dead)drawHQ(S[s].hq,s);
-  {const b=S[1].src,R=b.isHQ?31:21;if(mines.some(m=>m.kind=='post'&&m.owner==1)){ctx.strokeStyle=GOLD;ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineDashOffset=-time*8;
-    ctx.beginPath();ctx.arc(b.x,b.y,R,0,6.283);ctx.stroke();ctx.setLineDash([])}}
+  for(let i=0;i<Math.min(6,nPads()+1);i++){const p=pads[i],q=squads[i],open=i<nPads();
+    ctx.fillStyle=open?'rgba(63,143,224,.16)':'rgba(255,255,255,.07)';ctx.beginPath();ctx.arc(p.x,p.y,30,0,6.283);ctx.fill();
+    ctx.strokeStyle=open?(q.state=='field'?'rgba(255,255,255,.4)':'rgba(255,255,255,.85)'):'rgba(255,255,255,.3)';ctx.lineWidth=1.6;ctx.setLineDash([6,5]);ctx.beginPath();ctx.arc(p.x,p.y,30,0,6.283);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=open?'rgba(255,255,255,.75)':'rgba(255,255,255,.4)';ctx.font='800 10px sans-serif';ctx.fillText(open?i+1:'база '+i,p.x,p.y+(open?38:0))}
   if(fog){ctx.imageSmoothingEnabled=true;ctx.drawImage(fogC,0,0,W,H)}
-  // rally flags, grouped when several unit types share a point
-  const fl=[];for(const k of KEYS){const r=S[1].rally[k];let f=fl.find(o=>o.x==r.x&&o.y==r.y);if(!f)fl.push(f={x:r.x,y:r.y,s:''});f.s+=T[k].sym}
-  for(const rl of fl){ctx.strokeStyle=COL[1];ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(rl.x,rl.y,6,0,6.283);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(rl.x,rl.y-6);ctx.lineTo(rl.x,rl.y-17);ctx.lineTo(rl.x+8,rl.y-13);ctx.lineTo(rl.x,rl.y-10);ctx.stroke();
-    if(fl.length>1){ctx.fillStyle='#fff';ctx.font='9px sans-serif';ctx.fillText(rl.s,rl.x,rl.y+14)}}
+  for(let i=0;i<squads.length;i++){const q=squads[i],t=q.tgt;if(q.state!='field'||!t)continue;
+    ctx.fillStyle='#fff';ctx.strokeStyle=OUT;ctx.lineWidth=1;ctx.beginPath();ctx.arc(t.x+19+i*3,t.y-19,7,0,6.283);ctx.fill();ctx.stroke();
+    ctx.fillStyle=OUT;ctx.font='800 9px sans-serif';ctx.fillText(i+1,t.x+19+i*3,t.y-18.5)}
   for(const c of coins){if(!seen(c.x,c.y))continue;const r=c.v>8?3.2:2.4;ctx.fillStyle='#a8741a';ctx.beginPath();ctx.arc(c.x,c.y+.6,r,0,6.283);ctx.fill();
     ctx.fillStyle=GOLD;ctx.beginPath();ctx.arc(c.x,c.y,r,0,6.283);ctx.fill();ctx.fillStyle='rgba(255,255,255,.6)';ctx.beginPath();ctx.arc(c.x-.7,c.y-.7,r*.35,0,6.283);ctx.fill()}
   // units: selection rings, then sprites, then health bars
@@ -719,13 +680,6 @@ function draw(){
       ctx.strokeStyle='#e8d6b0';ctx.globalAlpha=a*.5;ctx.lineWidth=1;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(.5+t*.8),0,6.283);ctx.stroke()}
     else if(f.type=='ping'){ctx.strokeStyle=march?GOLD:'#dfe2e6';ctx.globalAlpha=a;ctx.lineWidth=1.5/z;ctx.beginPath();ctx.arc(f.x,f.y,(6+(1-a)*14)/Math.min(1,z),0,6.283);ctx.stroke()}
     ctx.globalAlpha=1;}
-  const g=gest;
-  if(g&&g.mode=='box'){const en=toW(g.px,g.py),px=1/z,bx=Math.min(g.w.x,en.x),by=Math.min(g.w.y,en.y),bw=Math.abs(en.x-g.w.x),bh=Math.abs(en.y-g.w.y);
-    ctx.fillStyle='rgba(223,226,230,.07)';ctx.fillRect(bx,by,bw,bh);
-    ctx.strokeStyle='rgba(223,226,230,.75)';ctx.lineWidth=1.3*px;ctx.setLineDash([5*px,4*px]);ctx.strokeRect(bx,by,bw,bh);ctx.setLineDash([]);
-    let n=0;for(const u of units)if(u.s==1&&u.x>=bx&&u.x<=bx+bw&&u.y>=by&&u.y<=by+bh)n++;
-    if(bw>4*px||bh>4*px){ctx.fillStyle='#dfe2e6';ctx.font=`600 ${12*px}px sans-serif`;ctx.fillText(n,bx+bw/2,by-9*px)}
-    else{ctx.strokeStyle='rgba(223,226,230,.8)';ctx.lineWidth=1.5*px;ctx.beginPath();ctx.arc(en.x,en.y,16*px,0,6.283);ctx.stroke()}}
   // screen-space overlays: minimap, toasts, pause
   ctx.setTransform(dpr,0,0,dpr,0,0);const m=mmRect(),kx=m.w/W,ky=m.h/H;
   ctx.globalAlpha=.92;ctx.drawImage(mmC,m.x,m.y,m.w,m.h);ctx.globalAlpha=1;
@@ -741,16 +695,19 @@ function draw(){
   for(const t of toasts){const a=Math.min(1,t.life),w=ctx.measureText(t.msg).width+18,cx=Math.max(w/2+6,(vw-m.w-8)/2);
     ctx.globalAlpha=a*.85;ctx.fillStyle='#1c2026';ctx.fillRect(cx-w/2,ty-11,w,22);ctx.globalAlpha=a;ctx.fillStyle='#dfe2e6';ctx.fillText(t.msg,cx,ty+.5);ty+=26}
   ctx.globalAlpha=1;
+  if(joy&&running){const dx=joy.x-joy.x0,dy=joy.y-joy.y0,l=Math.hypot(dx,dy)||1,m=Math.min(46,l);
+    ctx.fillStyle='rgba(255,255,255,.1)';ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.x0,joy.y0,46,0,6.283);ctx.fill();ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(joy.x0+dx/l*m,joy.y0+dy/l*m,18,0,6.283);ctx.fill()}
   if(paused&&running){ctx.fillStyle='rgba(14,16,19,.55)';ctx.fillRect(0,0,vw,vh);ctx.fillStyle='#dfe2e6';ctx.font='600 20px system-ui,sans-serif';ctx.fillText('Пауза',vw/2,vh/2)}
 }
 
 // ---------- loop ----------
 let last=performance.now(),fogT=0;
 function step(dt){frame++;repathBudget=2;time+=dt;
-  for(const s of [1,2])S[s].gold+=income(s)*dt*(s==2?diff:1);
+  for(const s of [1,2])S[s].gold+=income(s)*dt*(s==2?diff*1.35:1);
   buildGrid();for(const u of units)if(!u.dead)updUnit(u,dt);
   updHQ(S[1].hq,dt);updHQ(S[2].hq,dt);
-  units=units.filter(u=>!u.dead);updLoot(dt);buildGrid();separate();updMines(dt);updAI(dt);
+  units=units.filter(u=>!u.dead);updLoot(dt);buildGrid();separate();updMines(dt);updSquads(dt);updAI(dt);
   fogT-=dt;if(fogT<=0){fogT=.12;updFog(.4)}
   fx=fx.filter(f=>f.d>0?((f.d-=dt),true):(f.life-=dt)>0);toasts=toasts.filter(t=>(t.life-=dt)>0);
   decals=decals.filter(d=>(d.life-=dt)>0);if(decals.length>220)decals.splice(0,decals.length-220);}
@@ -760,6 +717,6 @@ function loop(now){let dt=Math.min(.05,(now-last)/1000);last=now;
 addEventListener('resize',resize);resize();mapBtns();
 newGame();hud();requestAnimationFrame(loop);
 // test hook: fast-forward the simulation
-window.__front={step:(n,dt=.05)=>{for(let i=0;i<n&&running;i++)step(dt)},state:()=>({S,units,mines,time,over,mapName,cam,hero,coins}),upBase,buy,send,setSel};
+window.__front={step:(n,dt=.05)=>{for(let i=0;i<n&&running;i++)step(dt)},state:()=>({S,units,mines,time,over,mapName,cam,hero,coins,squads,pads}),upBase,buy,send,sqGo};
 })();
 </script>
