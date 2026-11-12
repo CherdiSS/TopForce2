@@ -35,8 +35,10 @@ button.buy{background:var(--buy);margin-top:4px;padding:7px 2px}
 button.up{background:var(--up);margin-top:4px;font-size:11px;padding:5px 2px}
 button.atk{background:var(--atk);font-weight:600}
 button.on{background:var(--sel);font-weight:600}
-.row2{display:grid;grid-template-columns:.55fr 1.35fr .9fr 1.25fr;gap:6px}
-.row2 button{font-size:12px;padding:8px 2px;margin:0}
+.row2{display:grid;grid-template-columns:.8fr 1.2fr;gap:6px}
+.row6{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.row6 button{font-size:11.5px;padding:8px 1px}
+.row2 button{font-size:12px;padding:6px 2px;margin:0}
 .row5{display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:6px}
 .row5 button{padding:6px 2px;font-size:12px}
 #ov{position:absolute;inset:0;background:rgba(14,16,19,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center;z-index:5;overflow:auto}
@@ -59,10 +61,9 @@ button.on{background:var(--sel);font-weight:600}
     <canvas id="c"></canvas>
     <div id="ov">
       <h1>Фронт</h1>
-      <p id="ovp"><b>Свайп</b> — отряд в круге у начала свайпа идёт туда, где отпустил палец. <b>Тап</b> — точка сбора. Ряд с ●◆■▲ ограничивает приказ одним родом войск. В режиме <b>«Марш»</b> отряд идёт не ввязываясь в бой.<br>
-      <b>Два пальца</b> или колесо и правая кнопка мыши — зум и сдвиг, миникарта — прыжок.<br>
-      Пехота дешёвая, <b>ПТ</b> жжёт танки, <b>танки</b> давят пехоту, <b>арта</b> бьёт издали, но вблизи беспомощна. Лес прикрывает, холм добавляет дальности, дорога ускоряет.<br>
-      Шахты дают доход, форпост — передовую точку выхода войск. У своих штаба и форпоста войска лечатся.</p>
+      <p id="ovp"><b>Палец по карте</b> двигает камеру, два пальца — зум. <b>Тап по своему</b> выделяет его, двойной тап — всех таких на экране. <b>Удержи палец и тяни</b> (или кнопка «Рамка») — выделение рамкой. Кнопки ●◆■▲ оставляют в выделении один род войск, «½» — половину. <b>Тап по земле</b> отправляет выделенных; «Марш» — идти не ввязываясь в бой.<br>
+      Мышь: левая кнопка — рамка, правая — приказ и сдвиг карты, колесо — зум.<br>
+      Пехота дешёвая, <b>ПТ</b> жжёт танки, <b>танки</b> давят пехоту, <b>арта</b> бьёт издали, но вблизи беспомощна. Лес прикрывает, холм добавляет дальности, дорога ускоряет. Шахты дают доход, форпост — передовую точку выхода войск; у штаба и форпоста войска лечатся.</p>
       <div class="lbl">Карта</div>
       <div class="d m" id="maps">
         <button data-m="rand">Случай</button>
@@ -89,11 +90,17 @@ button.on{background:var(--sel);font-weight:600}
       <button data-f="tank">■</button>
       <button data-f="art">▲</button>
     </div>
-    <div class="row2">
-      <button id="amt">×1</button>
-      <button id="eco" class="up">Экономика</button>
+    <div class="row6">
+      <button id="box">Рамка</button>
+      <button id="half">½</button>
+      <button id="desel">Снять</button>
+      <button id="rally">Сбор</button>
       <button id="mode">Бой</button>
-      <button id="atk" class="atk">В атаку</button>
+      <button id="atk" class="atk">Атака</button>
+    </div>
+    <div class="row2">
+      <button id="amt">Закупка ×1</button>
+      <button id="eco" class="up">Экономика</button>
     </div>
   </div>
 </div>
@@ -114,10 +121,10 @@ const NB=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 
 // vs: damage multiplier against a target kind
 const T={
-  inf:{name:'Пехота',sym:'●',hint:'дёшево и много',hp:30,dmg:6,range:16,speed:38,cd:.6,cost:10,r:3,vr:6,vs:{tank:.4}},
-  at:{name:'ПТ',sym:'◆',hint:'жжёт танки',hp:26,dmg:9,range:34,speed:32,cd:1.4,cost:18,r:3.2,vr:6,vs:{tank:2.8,inf:.6,at:.6,art:.8,hq:.6}},
-  tank:{name:'Танки',sym:'■',hint:'давят пехоту',hp:150,dmg:16,range:26,speed:24,cd:1.1,cost:45,r:6,vr:6,splash:9,vs:{inf:1.4,at:1.2}},
-  art:{name:'Арта',sym:'▲',hint:'бьёт издали',hp:22,dmg:20,range:90,minR:28,speed:24,cd:2.2,cost:35,r:4,vr:5,splash:20,boom:true,vs:{tank:.55}},
+  inf:{name:'Пехота',sym:'●',hint:'дёшево и много',hp:30,dmg:6,range:16,speed:38,cd:.6,cost:10,r:3.6,vr:6,vs:{tank:.4}},
+  at:{name:'ПТ',sym:'◆',hint:'жжёт танки',hp:26,dmg:9,range:34,speed:32,cd:1.4,cost:18,r:4.2,vr:6,vs:{tank:2.8,inf:.6,at:.6,art:.8,hq:.6}},
+  tank:{name:'Танки',sym:'■',hint:'давят пехоту',hp:150,dmg:16,range:26,speed:24,cd:1.1,cost:45,r:7,vr:6,splash:9,vs:{inf:1.4,at:1.2}},
+  art:{name:'Арта',sym:'▲',hint:'бьёт издали',hp:22,dmg:20,range:90,minR:28,speed:24,cd:2.2,cost:35,r:5.5,vr:5,splash:20,boom:true,vs:{tank:.55}},
 };
 const KEYS=['inf','at','tank','art'];
 const COL={1:'#6ea8d8',2:'#d9796f',0:'#8a8f96'};
@@ -126,7 +133,7 @@ const GOLD='#d8b860';
 const cv=document.getElementById('c'),ctx=cv.getContext('2d'),wrap=document.getElementById('wrap');
 const dpr=Math.min(2,window.devicePixelRatio||1);
 let vw=300,vh=300,minZ=.3;const maxZ=2.2,cam={x:0,y:0,z:1};
-let S,units,mines,fx,toasts=[],time,running=false,paused=false,speed=1,diff=1,ai,drag=null,buyAmt=1,over=false,flt='all',march=false;
+let S,units,mines,fx,toasts=[],time,running=false,paused=false,speed=1,diff=1,ai,gest=null,buyAmt=1,over=false,march=false,decals=[];
 let mapKind='rand',mapName='',fog=true,alertT=-99;
 let terC=null,mmC=null,frame=0,repathBudget=0;
 try{const p=JSON.parse(localStorage.getItem('front')||'{}');if(MAPNAME[p.map]||p.map=='rand')mapKind=p.map;if(p.fog===false)fog=false}catch(_){}
@@ -276,11 +283,11 @@ function newGame(){
   const m=genMap(mapKind);mapName=MAPNAME[m.K];renderTerrain();
   const h1=m.hq,h2={x:W-h1.x,y:H-h1.y};
   S={1:mkSide(1,h1),2:mkSide(2,h2)};
-  units=[];fx=[];toasts=[];time=0;over=false;paused=false;mines=m.mines;alertT=-99;
+  units=[];fx=[];toasts=[];decals=[];time=0;over=false;paused=false;mines=m.mines;alertT=-99;
   ai={t:0,wave:25,def:1};
   for(const s of[1,2])homeRally(s,S[s].hq);
   fogA.fill(fog?1:0);updFog(1);
-  cam.z=clamp(vw/460,minZ,maxZ);cam.x=h1.x-vw/cam.z/2;cam.y=h1.y+100/cam.z-vh/cam.z;clampCam();
+  cam.z=clamp(vw/400,minZ,maxZ);cam.x=h1.x-vw/cam.z/2;cam.y=h1.y+100/cam.z-vh/cam.z;clampCam();
   toast('Карта: '+mapName);
 }
 function mkSide(s,hq){return{gold:60,eco:1,lost:0,lvl:{inf:1,at:1,tank:1,art:1},rally:{},rpath:{},rsrc:{},
@@ -298,13 +305,13 @@ function income(s){let n=4+2*S[s].eco;for(const m of mines)if(m.owner==s)n+=m.va
 function upCost(k,s){return T[k].cost*6*S[s].lvl[k]}
 function ecoCost(s){return 80*S[s].eco}
 function count(s){let n=0;for(const u of units)if(u.s==s)n++;return n}
-const match=u=>flt=='all'||u.k==flt;
+const turn=(a,b,k)=>a+(((b-a+9.4248)%6.2832)-3.1416)*Math.min(1,k);
 
 function spawn(s,k){
   const t=T[k],sd=S[s],m=1+.2*(sd.lvl[k]-1),a=Math.random()*6.28,rl=sd.rally[k],src=sd.rsrc[k];
   let tx=rl.x+(Math.random()-.5)*40,ty=rl.y+(Math.random()-.5)*30;if(!pass(tx,ty)){tx=rl.x;ty=rl.y}
   let x=src.x+Math.cos(a)*22,y=src.y+Math.sin(a)*22;if(!pass(x,y)){x=src.x;y=src.y}
-  units.push({s,k,x,y,ox:x,oy:y,lx:x,ly:y,st:0,nc:0,march:false,r:t.r,hp:t.hp*m,max:t.hp*m,dmg:t.dmg*m,cd:Math.random()*t.cd,rt:0,target:null,dead:false,tx,ty,path:sd.rpath[k],pi:0});
+  units.push({s,k,x,y,ox:x,oy:y,lx:x,ly:y,st:0,nc:0,march:false,sel:false,a:s==1?-1.57:1.57,ta:s==1?-1.57:1.57,r:t.r,hp:t.hp*m,max:t.hp*m,dmg:t.dmg*m,cd:Math.random()*t.cd,rt:0,target:null,dead:false,tx,ty,path:sd.rpath[k],pi:0});
 }
 function buy(s,k,n){for(let i=0;i<n;i++){if(S[s].gold<T[k].cost||count(s)>=CAP)return;S[s].gold-=T[k].cost;spawn(s,k)}}
 function upgrade(s,k){const c=upCost(k,s);if(S[s].gold>=c){S[s].gold-=c;S[s].lvl[k]++}}
@@ -324,7 +331,7 @@ function damage(t,a,k){if(t.dead)return;
   if(k){const m=T[k].vs[t.isHQ?'hq':t.k];if(m)a*=m}
   if(t.isHQ){if(t.s==1&&time-alertT>10){alertT=time;toast('Штаб под ударом')}}
   else if(tAt(t.x,t.y)==FOREST)a*=.7;
-  t.hp-=a;if(t.hp<=0){t.hp=0;t.dead=true;if(t.isHQ)endGame(t.s!=1);else S[t.s].lost++}}
+  t.hp-=a;if(t.hp<=0){t.hp=0;t.dead=true;if(t.isHQ)endGame(t.s!=1);else{S[t.s].lost++;decals.push({x:t.x,y:t.y,r:t.r,life:30})}}}
 function splash(s,x,y,rad,a,k){for(const o of units)if(o.s!=s&&!o.dead&&(o.x-x)**2+(o.y-y)**2<rad*rad)damage(o,a,k);
   const hq=S[3-s].hq;if(Math.hypot(hq.x-x,hq.y-y)<rad+hq.r)damage(hq,a,k);}
 
@@ -343,10 +350,11 @@ function updUnit(u,dt){
   if(u.target){const g=u.target,d=Math.hypot(g.x-u.x,g.y-u.y);
     if(d>rng+g.r){if(!u.march){mx=(g.x-u.x)/d;my=(g.y-u.y)/d;chase=true}}
     else if(u.cd<=0&&!(t.minR&&d<t.minR&&!g.isHQ)){u.cd=t.cd;
-      if(t.splash){splash(u.s,g.x,g.y,t.splash,u.dmg,u.k);
-        if(t.boom)fx.push({type:'boom',x:g.x,y:g.y,r:t.splash,life:.35,max:.35})}
-      else damage(g,u.dmg,u.k);
-      fx.push({type:'line',x1:u.x,y1:u.y,x2:g.x,y2:g.y,c:t.boom?'#d9b98a':u.s==1?'#bcd6ea':'#eac4be',life:t.boom?.12:.07,max:t.boom?.12:.07})}}
+      if(t.splash)splash(u.s,g.x,g.y,t.splash,u.dmg,u.k);else damage(g,u.dmg,u.k);
+      const fa=Math.atan2(g.y-u.y,g.x-u.x);
+      if(t.boom)fx.push({type:'shell',x1:u.x,y1:u.y,x2:g.x,y2:g.y,life:.28,max:.28},{type:'boom',x:g.x,y:g.y,r:t.splash,life:.4,max:.4,d:.28});
+      else fx.push({type:'line',x1:u.x,y1:u.y,x2:g.x,y2:g.y,c:u.s==1?'#cfe0ec':'#ecd2cd',w:u.k=='tank'?1.5:u.k=='at'?1.1:.7,life:.09,max:.09});
+      if(u.k!='inf'){const L=u.k=='at'?6.5:9;fx.push({type:'flash',x:u.x+Math.cos(fa)*L,y:u.y+Math.sin(fa)*L,r:u.k=='at'?1.6:2.4,life:.08,max:.08})}}}
   if(!u.target||u.march){let gx=u.tx,gy=u.ty;const p=u.path;
     if(p&&u.pi<p.length-1){const w=p[u.pi],nx=p[u.pi+1];gx=w.x;gy=w.y;
       if(Math.hypot(w.x-u.x,w.y-u.y)<18||Math.hypot(nx.x-u.x,nx.y-u.y)<Math.hypot(nx.x-w.x,nx.y-w.y))u.pi++}
@@ -360,6 +368,9 @@ function updUnit(u,dt){
     const sp=t.speed*m*dt,nx=u.x+mx*sp,ny=u.y+my*sp;
     if(pass(nx,ny)){u.x=nx;u.y=ny}
     else{if(pass(nx,u.y))u.x=nx;else if(pass(u.x,ny))u.y=ny;if(chase){u.nc=2;u.target=null}}}
+  if(mx||my)u.a=turn(u.a,Math.atan2(my,mx),dt*7);
+  const fa=u.target?Math.atan2(u.target.y-u.y,u.target.x-u.x):u.a;u.ta=turn(u.ta,fa,dt*9);
+  if(u.target&&!(mx||my)&&u.k!='tank')u.a=turn(u.a,fa,dt*7);
   u.ox=u.x;u.oy=u.y;
 }
 function separate(){
@@ -429,12 +440,44 @@ function send(list,x,y,mr){if(!list.length)return;[x,y]=fixDest(x,y);
       u.tx=x+ox;u.ty=y+oy;if(!pass(u.tx,u.ty)){u.tx=x;u.ty=y}
       u.path=path;u.pi=0;u.target=null;u.rt=0;u.nc=0;u.st=0;u.march=!!mr;u.lx=u.x;u.ly=u.y}}}
 
-function endGame(win){if(over)return;over=true;running=false;drag=null;
+function endGame(win){if(over)return;over=true;running=false;gest=null;
   const ov=document.getElementById('ov');ov.hidden=false;
   ov.querySelector('h1').textContent=win?'Победа':'Разгром';
   document.getElementById('ovp').innerHTML=`Карта «${mapName}», время <b>${fmt(time)}</b>.<br>Уничтожено <b>${S[2].lost}</b>, потеряно <b>${S[1].lost}</b>, шахт у тебя <b>${mines.filter(m=>m.owner==1&&m.kind=='mine').length}</b>.`;}
 
+// ---------- selection & orders ----------
+const selU=()=>units.filter(u=>u.s==1&&u.sel);
+function setSel(list){for(const u of units)u.sel=false;for(const u of list)u.sel=true;if(S)hud()}
+function typeBtn(f){const all=units.filter(u=>u.s==1),sel=all.filter(u=>u.sel);
+  if(f=='all'){setSel(sel.length==all.length?[]:all);return}
+  const of=all.filter(u=>u.k==f),inSel=sel.filter(u=>u.k==f);
+  if(inSel.length&&inSel.length<sel.length)setSel(inSel);      // mixed selection: keep only this kind
+  else if(inSel.length&&inSel.length==of.length)setSel([]);
+  else setSel(of)}
+function halve(){const sel=selU();if(sel.length<2)return;const keep=[];let i=0;
+  for(const k of KEYS)for(const u of sel.filter(u=>u.k==k).sort((p,q)=>p.x-q.x||p.y-q.y))if(i++%2==0)keep.push(u);
+  setSel(keep)}
+let hintT=-99,lastTap=null,boxArm=false,rallyArm=false;
+function order(p){const sel=selU();
+  if(!sel.length){if(time-hintT>4){hintT=time;toast('Сначала выдели войска: рамка или ●◆■▲')}return}
+  send(sel,p.x,p.y,march);fx.push({type:'ping',x:p.x,y:p.y,life:.5,max:.5})}
+function handleTap(p){
+  if(rallyArm){const sel=selU(),ks=sel.length?KEYS.filter(k=>sel.some(u=>u.k==k)):KEYS;
+    setRally(1,ks,p.x,p.y);setArm('rally',false);const r=S[1].rally[ks[0]];fx.push({type:'ping',x:r.x,y:r.y,life:.5,max:.5});
+    toast('Точка сбора: '+(ks.length==4?'все':ks.map(k=>T[k].sym).join(' ')));return}
+  const R=Math.max(9,20/cam.z);let best=null,bd=R*R;
+  for(const u of units)if(u.s==1){const d=(u.x-p.x)**2+(u.y-p.y)**2;if(d<bd){bd=d;best=u}}
+  const now=performance.now();
+  if(best){
+    if(lastTap&&now-lastTap.t<380&&lastTap.k==best.k){const a=toW(0,0),b=toW(vw,vh);
+      setSel(units.filter(u=>u.s==1&&u.k==best.k&&u.x>=a.x&&u.x<=b.x&&u.y>=a.y&&u.y<=b.y))}
+    else setSel([best]);
+    lastTap={t:now,k:best.k};return}
+  lastTap=null;order(p)}
+
 // ---------- camera & input ----------
+// touch: drag pans, pinch zooms, tap selects a unit or orders the selection, hold-then-drag (or the Рамка button) draws a selection box
+// mouse: left drag draws the box, right drag pans, right click orders
 function resize(){vw=Math.max(50,wrap.clientWidth);vh=Math.max(50,wrap.clientHeight);
   cv.style.width=vw+'px';cv.style.height=vh+'px';cv.width=Math.round(vw*dpr);cv.height=Math.round(vh*dpr);
   minZ=Math.min(vw/W,vh/H);clampCam()}
@@ -445,40 +488,47 @@ function zoomAt(x,y,f){const w=toW(x,y);cam.z=clamp(cam.z*f,minZ,maxZ);cam.x=w.x
 function mmRect(){const w=clamp(vw*.17,56,92);return{x:vw-w-8,y:8,w,h:w*H/W}}
 function mmMove(p){const m=mmRect();cam.x=(p.x-m.x)/m.w*W-vw/cam.z/2;cam.y=(p.y-m.y)/m.h*H-vh/cam.z/2;clampCam()}
 function sp(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-const ptrs=new Map();let mmId=null,pan=null,pinch=null;
+const ptrs=new Map();let mmId=null,pinch=null;
 function pinchState(){const[a,b]=[...ptrs.values()];return{d:Math.hypot(a.x-b.x,a.y-b.y)||1,x:(a.x+b.x)/2,y:(a.y+b.y)/2}}
 cv.addEventListener('pointerdown',e=>{if(!running)return;try{cv.setPointerCapture(e.pointerId)}catch(_){}
   const p=sp(e),m=mmRect();
   if(p.x>=m.x&&p.x<=m.x+m.w&&p.y>=m.y&&p.y<=m.y+m.h){mmId=e.pointerId;mmMove(p);return}
-  if(e.pointerType=='mouse'&&e.button!=0){pan={id:e.pointerId,x:p.x,y:p.y};return}
   ptrs.set(e.pointerId,p);
-  if(ptrs.size>=2){drag=null;pinch=pinchState()}
-  else{const w=toW(p.x,p.y);drag={id:e.pointerId,sx:w.x,sy:w.y,x0:p.x,y0:p.y,px:p.x,py:p.y,moved:false,r:clamp(60/cam.z,45,170)}}});
+  if(ptrs.size>=2){gest=null;pinch=pinchState();return}
+  const mouse=e.pointerType=='mouse';
+  gest={id:e.pointerId,mode:boxArm&&!(mouse&&e.button!=0)?'box':'pending',x0:p.x,y0:p.y,px:p.x,py:p.y,t0:performance.now(),w:toW(p.x,p.y),mouse,btn:e.button,held:false}});
 cv.addEventListener('pointermove',e=>{const p=sp(e);
   if(mmId===e.pointerId){mmMove(p);return}
-  if(pan&&pan.id===e.pointerId){cam.x-=(p.x-pan.x)/cam.z;cam.y-=(p.y-pan.y)/cam.z;pan.x=p.x;pan.y=p.y;clampCam();return}
   if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,p);
   if(ptrs.size>=2&&pinch){const n=pinchState(),w=toW(pinch.x,pinch.y);cam.z=clamp(cam.z*n.d/pinch.d,minZ,maxZ);
-    cam.x=w.x-n.x/cam.z;cam.y=w.y-n.y/cam.z;clampCam();pinch=n}
-  else if(drag&&drag.id===e.pointerId){drag.px=p.x;drag.py=p.y;if(Math.hypot(p.x-drag.x0,p.y-drag.y0)>14)drag.moved=true}});
-function pEnd(e,ok){if(mmId===e.pointerId)mmId=null;if(pan&&pan.id===e.pointerId)pan=null;
+    cam.x=w.x-n.x/cam.z;cam.y=w.y-n.y/cam.z;clampCam();pinch=n;return}
+  const g=gest;if(!g||g.id!==e.pointerId)return;
+  const dx=p.x-g.px,dy=p.y-g.py;g.px=p.x;g.py=p.y;
+  if(g.mode=='pending'&&Math.hypot(p.x-g.x0,p.y-g.y0)>9)g.mode=g.mouse&&g.btn==0?'box':'pan';
+  if(g.mode=='pan'){cam.x-=dx/cam.z;cam.y-=dy/cam.z;clampCam()}});
+function pEnd(e,ok){if(mmId===e.pointerId)mmId=null;
   ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;
-  if(!drag||drag.id!==e.pointerId)return;const d=drag;drag=null;if(!ok||!running)return;
-  const keys=flt=='all'?KEYS:[flt];
-  if(!d.moved){setRally(1,keys,d.sx,d.sy);const r=S[1].rally[keys[0]];fx.push({type:'ping',x:r.x,y:r.y,life:.5,max:.5});return}
-  const en=toW(d.px,d.py),sel=units.filter(u=>u.s==1&&match(u)&&(u.x-d.sx)**2+(u.y-d.sy)**2<d.r*d.r);
-  send(sel,en.x,en.y,march);fx.push({type:'ping',x:en.x,y:en.y,life:.5,max:.5})}
+  const g=gest;if(!g||g.id!==e.pointerId)return;gest=null;if(!ok||!running)return;
+  const en=toW(g.px,g.py);
+  if(g.mode=='pending'){if(g.mouse&&g.btn!=0)order(en);else handleTap(en);return}
+  if(g.mode=='box'){
+    if(Math.abs(g.px-g.x0)<8&&Math.abs(g.py-g.y0)<8){if(!g.held)handleTap(en);return}
+    const x0=Math.min(g.w.x,en.x),x1=Math.max(g.w.x,en.x),y0=Math.min(g.w.y,en.y),y1=Math.max(g.w.y,en.y);
+    setSel(units.filter(u=>u.s==1&&u.x>=x0&&u.x<=x1&&u.y>=y0&&u.y<=y1));setArm('box',false)}}
 cv.addEventListener('pointerup',e=>pEnd(e,true));
 cv.addEventListener('pointercancel',e=>pEnd(e,false));
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('wheel',e=>{e.preventDefault();if(!running)return;const p=sp(e);zoomAt(p.x,p.y,Math.exp(-e.deltaY*.0015))},{passive:false});
 const keys={};
-addEventListener('keydown',e=>{keys[e.code]=true;const i=['Digit1','Digit2','Digit3','Digit4','Digit5'].indexOf(e.code);
-  if(i>=0)setFlt(['all',...KEYS][i]);if(e.code=='Space'&&running){e.preventDefault();setPause(!paused)}if(e.code=='KeyM')setMarch(!march)});
+addEventListener('keydown',e=>{keys[e.code]=true;if(!running)return;
+  const i=['Digit1','Digit2','Digit3','Digit4','Digit5'].indexOf(e.code);if(i>=0)typeBtn(['all',...KEYS][i]);
+  if(e.code=='Space'){e.preventDefault();setPause(!paused)}
+  if(e.code=='KeyM')setMarch(!march);if(e.code=='Escape')setSel([]);if(e.code=='KeyH')halve()});
 addEventListener('keyup',e=>{keys[e.code]=false});
-function camTick(dt){const v=520/cam.z*dt;let dx=0,dy=0;
+function camTick(dt){const v=520/cam.z*dt;let dx=0,dy=0;const g=gest;
   if(keys.ArrowLeft||keys.KeyA)dx-=v;if(keys.ArrowRight||keys.KeyD)dx+=v;if(keys.ArrowUp||keys.KeyW)dy-=v;if(keys.ArrowDown||keys.KeyS)dy+=v;
-  if(drag&&drag.moved){const e=28;if(drag.px<e)dx-=v;if(drag.px>vw-e)dx+=v;if(drag.py<e)dy-=v;if(drag.py>vh-e)dy+=v}
+  if(g&&g.mode=='pending'&&!g.mouse&&performance.now()-g.t0>330){g.mode='box';g.held=true}
+  if(g&&g.mode=='box'&&Math.hypot(g.px-g.x0,g.py-g.y0)>30){const e=26;if(g.px<e)dx-=v;if(g.px>vw-e)dx+=v;if(g.py<e)dy-=v;if(g.py>vh-e)dy+=v}
   if(dx||dy){cam.x+=dx;cam.y+=dy;clampCam()}}
 
 // ---------- UI ----------
@@ -488,26 +538,30 @@ for(const k of KEYS){const d=document.createElement('div');d.className='u';
   d.innerHTML=`<div class="n">${T[k].sym} ${T[k].name}</div><div>${T[k].hint}</div><button class="buy" id="b_${k}"></button><button class="up" id="u_${k}"></button>`;
   uEl.appendChild(d);
   d.querySelector('.buy').onclick=()=>{if(running)buy(1,k,buyAmt)};d.querySelector('.up').onclick=()=>{if(running)upgrade(1,k)};}
-$('amt').onclick=e=>{buyAmt=buyAmt==1?5:buyAmt==5?10:1;e.target.textContent='×'+buyAmt};
+$('amt').onclick=e=>{buyAmt=buyAmt==1?5:buyAmt==5?10:1;e.target.textContent='Закупка ×'+buyAmt};
 $('eco').onclick=()=>{if(running)upEco(1)};
-$('atk').onclick=()=>{if(running)send(units.filter(u=>u.s==1&&match(u)),S[2].hq.x,S[2].hq.y)};
+$('atk').onclick=()=>{if(!running)return;const sel=selU();send(sel.length?sel:units.filter(u=>u.s==1),S[2].hq.x,S[2].hq.y)};
 function setMarch(v){march=v;const b=$('mode');b.textContent=v?'Марш':'Бой';b.classList.toggle('on',v)}
 $('mode').onclick=()=>setMarch(!march);
+function setArm(w,v){if(w=='box'){boxArm=v;if(v)rallyArm=false}else{rallyArm=v;if(v){boxArm=false;toast('Тапни по карте — там будет точка сбора')}}
+  $('box').classList.toggle('on',boxArm);$('rally').classList.toggle('on',rallyArm)}
+$('box').onclick=()=>setArm('box',!boxArm);
+$('rally').onclick=()=>setArm('rally',!rallyArm);
+$('half').onclick=halve;
+$('desel').onclick=()=>setSel([]);
 function setPause(v){paused=v;$('pz').classList.toggle('on',v)}
 $('pz').onclick=()=>{if(running)setPause(!paused)};
 $('spd').onclick=e=>{speed=speed==1?2:speed==2?3:1;e.target.textContent='×'+speed;e.target.classList.toggle('on',speed>1)};
-function setFlt(f){flt=f;document.querySelectorAll('#flt button').forEach(b=>b.classList.toggle('on',b.dataset.f==f));
-  $('atk').textContent=f=='all'?'Все в атаку':`${T[f].sym} в атаку`}
-document.querySelectorAll('#flt button').forEach(b=>b.onclick=()=>setFlt(b.dataset.f));
+document.querySelectorAll('#flt button').forEach(b=>b.onclick=()=>{if(running)typeBtn(b.dataset.f)});
 function mapBtns(){document.querySelectorAll('#maps button').forEach(o=>o.classList.toggle('on',o.dataset.m==mapKind));
   const f=$('fogb');f.textContent='Туман войны: '+(fog?'вкл':'выкл');f.classList.toggle('on',fog)}
 document.querySelectorAll('#maps button').forEach(b=>b.onclick=()=>{mapKind=b.dataset.m;mapBtns();savePrefs()});
 $('fogb').onclick=()=>{fog=!fog;mapBtns();savePrefs()};
-document.querySelectorAll('#ov [data-d]').forEach(b=>b.onclick=()=>{diff=+b.dataset.d;newGame();setPause(false);running=true;$('ov').hidden=true});
+document.querySelectorAll('#ov [data-d]').forEach(b=>b.onclick=()=>{diff=+b.dataset.d;newGame();setPause(false);setArm('box',false);setArm('rally',false);running=true;$('ov').hidden=true});
 const fmt=t=>`${t/60|0}:${String(t%60|0).padStart(2,'0')}`;
 let hudT=0;
-function hud(){const sd=S[1],n={inf:0,at:0,tank:0,art:0};let mine=0,foe=0;
-  for(const u of units)if(u.s==1){n[u.k]++;mine++}else foe++;
+function hud(){const sd=S[1],n={inf:0,at:0,tank:0,art:0},sn={inf:0,at:0,tank:0,art:0};let mine=0,foe=0,sel=0;
+  for(const u of units)if(u.s==1){n[u.k]++;mine++;if(u.sel){sn[u.k]++;sel++}}else foe++;
   $('gold').textContent=sd.gold|0;
   $('inc').textContent=`+${income(1)}/с`;
   $('cnt').innerHTML=`<span style="color:${COL[1]}">${mine}</span> : <span style="color:${COL[2]}">${fog?'?':foe}</span>`;
@@ -515,26 +569,75 @@ function hud(){const sd=S[1],n={inf:0,at:0,tank:0,art:0};let mine=0,foe=0;
   for(const k of KEYS){const b=$('b_'+k),u=$('u_'+k);
     b.textContent=T[k].cost*buyAmt;b.disabled=sd.gold<T[k].cost;
     u.textContent=`ур.${sd.lvl[k]} ↑${upCost(k,1)}`;u.disabled=sd.gold<upCost(k,1);}
-  document.querySelectorAll('#flt button').forEach(b=>{const f=b.dataset.f;b.textContent=f=='all'?`Все ${mine}`:`${T[f].sym} ${n[f]}`});
+  document.querySelectorAll('#flt button').forEach(b=>{const f=b.dataset.f;
+    if(f=='all'){b.textContent=`Все ${sel?sel+'/':''}${mine}`;b.classList.toggle('on',sel>0&&sel==mine)}
+    else{b.textContent=`${T[f].sym} ${sn[f]?sn[f]+'/':''}${n[f]}`;b.classList.toggle('on',sn[f]>0)}});
+  $('half').disabled=sel<2;$('desel').disabled=!sel;
+  $('atk').textContent=sel?`Атака ${sel}`:'Атака';
   const e=$('eco');e.textContent=`Экономика ${sd.eco} ↑${ecoCost(1)}`;e.disabled=sd.gold<ecoCost(1);}
 
+// ---------- sprites: small top-down models, drawn once per side and rotated when blitted ----------
+const OUT='#1b1e22',MET='#2b2f34';
+const PAL={1:{base:'#5f93bf',light:'#9cc3e0',dark:'#3b5f80'},2:{base:'#c06a60',light:'#e3a399',dark:'#84453f'}};
+function mk(w,h,f){const c=document.createElement('canvas'),q=6;c.width=w*q;c.height=h*q;const g=c.getContext('2d');
+  g.translate(w*q/2,h*q/2);g.scale(q,q);g.lineJoin='round';g.lineCap='round';f(g);return{c,w,h}}
+function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.lineTo(x+w-r,y);g.quadraticCurveTo(x+w,y,x+w,y+r);g.lineTo(x+w,y+h-r);g.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  g.lineTo(x+r,y+h);g.quadraticCurveTo(x,y+h,x,y+h-r);g.lineTo(x,y+r);g.quadraticCurveTo(x,y,x+r,y);g.closePath()}
+function box(g,x,y,w,h,fill,r){rr(g,x,y,w,h,r||.4);g.fillStyle=fill;g.fill();g.stroke()}
+const SPR={};
+for(const s of[1,2]){const c=PAL[s];
+  const soldier=(g,y)=>{g.strokeStyle=OUT;g.lineWidth=.5;g.fillStyle=c.base;g.beginPath();g.ellipse(-.3,y,1.8,3.1,0,0,6.283);g.fill();g.stroke();
+    g.fillStyle=c.light;g.beginPath();g.arc(.2,y,1.75,0,6.283);g.fill();g.stroke();
+    g.fillStyle='rgba(255,255,255,.28)';g.beginPath();g.arc(.7,y-.5,.65,0,6.283);g.fill()};
+  SPR[s]={
+    inf:mk(12,9,g=>{g.strokeStyle='#14161a';g.lineWidth=.9;g.beginPath();g.moveTo(.4,2.3);g.lineTo(4.8,1.6);g.stroke();soldier(g,0)}),
+    at:mk(14,11,g=>{g.strokeStyle=OUT;g.lineWidth=.45;
+      g.strokeStyle=MET;g.lineWidth=.8;g.beginPath();g.moveTo(-1.5,0);g.lineTo(-5.6,2.2);g.moveTo(-1.5,0);g.lineTo(-5.6,-2.2);g.stroke();
+      g.strokeStyle=OUT;g.lineWidth=.45;box(g,-1.2,-4.3,2.6,1.4,MET);box(g,-1.2,2.9,2.6,1.4,MET);
+      box(g,-2.4,-.9,3.4,1.8,c.dark);box(g,1,-.55,5.6,1.1,MET,.3);box(g,.6,-3.2,1.1,6.4,c.base,.3);
+      g.fillStyle=c.light;g.beginPath();g.arc(-3.6,-2.9,1.4,0,6.283);g.fill();g.stroke()}),
+    tank:mk(17,13,g=>{g.strokeStyle=OUT;g.lineWidth=.5;
+      box(g,-7.2,-5.8,14.4,3,MET,.8);box(g,-7.2,2.8,14.4,3,MET,.8);
+      g.strokeStyle='rgba(255,255,255,.1)';g.lineWidth=.35;for(let x=-6;x<7;x+=1.6){g.beginPath();g.moveTo(x,-5.4);g.lineTo(x,-3.2);g.moveTo(x,3.2);g.lineTo(x,5.4);g.stroke()}
+      g.strokeStyle=OUT;g.lineWidth=.5;box(g,-6.6,-4.1,13.2,8.2,c.base,1.4);
+      g.fillStyle='rgba(255,255,255,.14)';rr(g,2.2,-3.5,3.6,7,.9);g.fill();
+      g.strokeStyle='rgba(0,0,0,.3)';g.lineWidth=.4;for(let y=-2.4;y<3;y+=1.2){g.beginPath();g.moveTo(-6,y);g.lineTo(-3.6,y);g.stroke()}}),
+    tur:mk(20,8,g=>{g.strokeStyle=OUT;g.lineWidth=.5;box(g,1.5,-.75,7.6,1.5,c.dark,.4);box(g,8.2,-1,1.5,2,MET,.3);
+      g.fillStyle=c.light;g.beginPath();g.arc(-.6,0,3.2,0,6.283);g.fill();g.stroke();
+      g.fillStyle=c.dark;g.beginPath();g.arc(-1.4,-.9,1,0,6.283);g.fill();
+      g.fillStyle='rgba(255,255,255,.25)';g.beginPath();g.arc(.2,-1.2,.8,0,6.283);g.fill()}),
+    art:mk(19,12,g=>{g.strokeStyle=MET;g.lineWidth=1;g.beginPath();g.moveTo(-1.5,0);g.lineTo(-8.2,3.6);g.moveTo(-1.5,0);g.lineTo(-8.2,-3.6);g.stroke();
+      g.strokeStyle=OUT;g.lineWidth=.45;box(g,-1.6,-5.2,3.6,1.6,MET,.5);box(g,-1.6,3.6,3.6,1.6,MET,.5);
+      box(g,-1.4,-.75,9.6,1.5,MET,.3);box(g,7.4,-1.15,1.6,2.3,MET,.3);
+      box(g,-3,-1.4,3.6,2.8,c.dark);box(g,.9,-3.7,1.2,7.4,c.base,.3);
+      g.fillStyle=c.light;g.beginPath();g.arc(-4.4,2.6,1.35,0,6.283);g.fill();g.stroke()}),
+  }}
+function drawHQ(hq,s){const x=hq.x,y=hq.y,c=PAL[s];
+  ctx.strokeStyle=c.base;ctx.globalAlpha=.16;ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,95,0,6.283);ctx.stroke();ctx.globalAlpha=1;
+  ctx.fillStyle='rgba(16,18,20,.4)';rr(ctx,x-23,y-23,46,46,6);ctx.fill();
+  ctx.strokeStyle=OUT;ctx.lineWidth=1;rr(ctx,x-19,y-19,38,38,3);ctx.fillStyle=c.dark;ctx.fill();ctx.stroke();
+  rr(ctx,x-14,y-14,28,28,2);ctx.fillStyle=c.base;ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.2)';ctx.beginPath();ctx.moveTo(x-14,y-14);ctx.lineTo(x+14,y-14);ctx.lineTo(x,y);ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.moveTo(x-14,y+14);ctx.lineTo(x+14,y+14);ctx.lineTo(x,y);ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x-14,y-14);ctx.lineTo(x+14,y+14);ctx.moveTo(x+14,y-14);ctx.lineTo(x-14,y+14);ctx.stroke();
+  ctx.strokeStyle=OUT;ctx.lineWidth=.8;
+  for(const[dx,dy]of[[-1,-1],[1,-1],[-1,1],[1,1]]){ctx.fillStyle=c.dark;ctx.beginPath();ctx.arc(x+dx*18,y+dy*18,5,0,6.283);ctx.fill();ctx.stroke();
+    ctx.fillStyle=c.light;ctx.beginPath();ctx.arc(x+dx*18,y+dy*18,2.4,0,6.283);ctx.fill()}
+  ctx.strokeStyle='#d7dade';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x,y+1);ctx.lineTo(x,y-13);ctx.stroke();
+  ctx.fillStyle=c.light;ctx.beginPath();ctx.moveTo(x+.6,y-13);ctx.lineTo(x+9,y-10);ctx.lineTo(x+.6,y-7);ctx.fill();
+  const bw=46,by=s==1?y+27:y-31;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x-bw/2,by,bw,4);ctx.fillStyle='#a3c08e';ctx.fillRect(x-bw/2,by,bw*hq.hp/hq.max,4)}
+
 // ---------- draw ----------
-function shape(u,mr){const r=Math.max(u.r,mr),x=u.x,y=u.y;ctx.fillStyle=COL[u.s];ctx.beginPath();
-  if(u.k=='inf')ctx.arc(x,y,r,0,6.283);
-  else if(u.k=='at'){const q=r*1.35;ctx.moveTo(x,y-q);ctx.lineTo(x+q,y);ctx.lineTo(x,y+q);ctx.lineTo(x-q,y);ctx.closePath()}
-  else if(u.k=='tank')ctx.rect(x-r,y-r,r*2,r*2);
-  else{const dir=u.s==1?-1:1;ctx.moveTo(x,y+dir*r*1.3);ctx.lineTo(x-r,y-dir*r);ctx.lineTo(x+r,y-dir*r);ctx.closePath()}
-  ctx.fill();ctx.stroke();
-  if(u.k=='tank'){ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(x-r*.38,y-r*.38,r*.76,r*.76)}
-  if(u.hp<u.max&&u.k!='inf'&&u.k!='at'){ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x-6,y-r-4,12,2);ctx.fillStyle='#a3c08e';ctx.fillRect(x-6,y-r-4,12*u.hp/u.max,2)}}
-function bar(x,y,w,v,c){ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x-w/2,y,w,4);ctx.fillStyle=c;ctx.fillRect(x-w/2,y,w*v,4)}
 function draw(){
-  const z=cam.z;
+  const z=cam.z,B=dpr*z,E=-cam.x*z*dpr,F=-cam.y*z*dpr;
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#15181c';ctx.fillRect(0,0,vw,vh);
-  ctx.setTransform(dpr*z,0,0,dpr*z,-cam.x*z*dpr,-cam.y*z*dpr);
+  ctx.setTransform(B,0,0,B,E,F);
   ctx.drawImage(terC,0,0,W,H);
   const x0=cam.x-20,y0=cam.y-20,x1=cam.x+vw/z+20,y1=cam.y+vh/z+20;
   ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='#0e1012';
+  for(const d of decals){if(d.x<x0||d.x>x1||d.y<y0||d.y>y1)continue;ctx.globalAlpha=Math.min(1,d.life/8)*.3;ctx.beginPath();ctx.arc(d.x,d.y,d.r*1.7,0,6.283);ctx.fill()}
+  ctx.globalAlpha=1;
   for(const m of mines){const R=15,x=m.x,y=m.y;
     ctx.fillStyle='rgba(16,18,20,.5)';ctx.beginPath();ctx.arc(x,y,R,0,6.283);ctx.fill();
     ctx.strokeStyle=m.owner?COL[m.owner]:'rgba(255,255,255,.18)';ctx.lineWidth=m.owner?2:1;ctx.beginPath();ctx.arc(x,y,R,0,6.283);ctx.stroke();
@@ -544,47 +647,55 @@ function draw(){
     else{const q=m.val>3?7.5:5;ctx.fillStyle=GOLD;ctx.beginPath();ctx.moveTo(x,y-q);ctx.lineTo(x+q*.8,y);ctx.lineTo(x,y+q);ctx.lineTo(x-q*.8,y);ctx.fill();
       ctx.fillStyle='rgba(255,255,255,.3)';ctx.beginPath();ctx.moveTo(x,y-q);ctx.lineTo(x+q*.8,y);ctx.lineTo(x,y);ctx.fill();
       if(m.val>3){ctx.strokeStyle='rgba(216,184,96,.55)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,R+7,0,6.283);ctx.stroke()}}}
-  for(const s of [1,2]){const hq=S[s].hq;if(hq.dead)continue;const r=hq.r;
-    ctx.strokeStyle=COL[s];ctx.globalAlpha=.18;ctx.lineWidth=1;ctx.beginPath();ctx.arc(hq.x,hq.y,95,0,6.283);ctx.stroke();ctx.globalAlpha=1;
-    ctx.fillStyle=COL[s];ctx.fillRect(hq.x-r,hq.y-r,r*2,r*2);ctx.strokeStyle='rgba(12,14,16,.7)';ctx.lineWidth=1.5;ctx.strokeRect(hq.x-r,hq.y-r,r*2,r*2);
-    ctx.fillStyle='rgba(0,0,0,.32)';ctx.fillRect(hq.x-9,hq.y-9,18,18);ctx.fillStyle=COL[s];ctx.fillRect(hq.x-3,hq.y-3,6,6);
-    bar(hq.x,s==1?hq.y+r+5:hq.y-r-9,46,hq.hp/hq.max,'#a3c08e');}
+  for(const s of [1,2])if(!S[s].hq.dead)drawHQ(S[s].hq,s);
   if(fog){ctx.imageSmoothingEnabled=true;ctx.drawImage(fogC,0,0,W,H)}
   // rally flags, grouped when several unit types share a point
   const fl=[];for(const k of KEYS){const r=S[1].rally[k];let f=fl.find(o=>o.x==r.x&&o.y==r.y);if(!f)fl.push(f={x:r.x,y:r.y,s:''});f.s+=T[k].sym}
   for(const rl of fl){ctx.strokeStyle=COL[1];ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(rl.x,rl.y,6,0,6.283);ctx.stroke();
     ctx.beginPath();ctx.moveTo(rl.x,rl.y-6);ctx.lineTo(rl.x,rl.y-17);ctx.lineTo(rl.x+8,rl.y-13);ctx.lineTo(rl.x,rl.y-10);ctx.stroke();
     if(fl.length>1){ctx.fillStyle='#dfe2e6';ctx.font='9px sans-serif';ctx.fillText(rl.s,rl.x,rl.y+14)}}
-  const mr=1.5/z;ctx.strokeStyle='rgba(12,14,16,.6)';ctx.lineWidth=Math.max(.7,.6/z);
-  for(const u of units){if(u.x<x0||u.x>x1||u.y<y0||u.y>y1)continue;
-    if(u.s==2&&!seen(u.x,u.y))continue;
-    ctx.globalAlpha=u.s==1&&!match(u)?.4:1;shape(u,mr)}
-  ctx.globalAlpha=1;
-  for(const f of fx){const a=f.life/f.max;
-    if(f.type=='line'){if(!seen(f.x2,f.y2)&&!seen(f.x1,f.y1))continue;ctx.strokeStyle=f.c;ctx.globalAlpha=a*.7;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(f.x1,f.y1);ctx.lineTo(f.x2,f.y2);ctx.stroke()}
-    else if(f.type=='boom'){if(!seen(f.x,f.y))continue;ctx.fillStyle='#d9a066';ctx.globalAlpha=a*.38;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(1.15-a*.4),0,6.283);ctx.fill()}
-    else if(f.type=='ping'){ctx.strokeStyle='#dfe2e6';ctx.globalAlpha=a;ctx.lineWidth=1.5/z;ctx.beginPath();ctx.arc(f.x,f.y,(6+(1-a)*14)/Math.min(1,z),0,6.283);ctx.stroke()}
+  // units: selection rings, then sprites, then health bars
+  const sc=Math.max(1,.62/z),vu=[];
+  for(const u of units){if(u.x<x0||u.x>x1||u.y<y0||u.y>y1)continue;if(u.s==2&&!seen(u.x,u.y))continue;vu.push(u)}
+  ctx.strokeStyle='rgba(236,239,242,.9)';ctx.lineWidth=Math.max(.9,1.1/z);ctx.beginPath();
+  for(const u of vu)if(u.sel){const R=(u.r+3.2)*sc;ctx.moveTo(u.x+R,u.y);ctx.arc(u.x,u.y,R,0,6.283)}
+  ctx.stroke();
+  for(const u of vu){const set=SPR[u.s],q=set[u.k],cs=Math.cos(u.a)*sc*B,sn=Math.sin(u.a)*sc*B;
+    ctx.setTransform(cs,sn,-sn,cs,B*u.x+E,B*u.y+F);ctx.drawImage(q.c,-q.w/2,-q.h/2,q.w,q.h);
+    if(u.k=='tank'){const t=set.tur,c2=Math.cos(u.ta)*sc*B,s2=Math.sin(u.ta)*sc*B;ctx.setTransform(c2,s2,-s2,c2,B*u.x+E,B*u.y+F);ctx.drawImage(t.c,-t.w/2,-t.h/2,t.w,t.h)}}
+  ctx.setTransform(B,0,0,B,E,F);
+  for(const u of vu)if(u.hp<u.max&&(u.sel||u.k=='tank'||u.k=='art')){const w=u.r*2+4,y=u.y-(u.r+5)*sc;
+    ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(u.x-w/2,y,w,1.8);ctx.fillStyle='#a3c08e';ctx.fillRect(u.x-w/2,y,w*u.hp/u.max,1.8)}
+  for(const f of fx){if(f.d>0)continue;const a=f.life/f.max;
+    if(f.type=='line'){if(!seen(f.x2,f.y2)&&!seen(f.x1,f.y1))continue;const t=1-a,t2=Math.min(1,t+.4);
+      ctx.strokeStyle=f.c;ctx.globalAlpha=.75;ctx.lineWidth=f.w||.8;ctx.beginPath();
+      ctx.moveTo(f.x1+(f.x2-f.x1)*t,f.y1+(f.y2-f.y1)*t);ctx.lineTo(f.x1+(f.x2-f.x1)*t2,f.y1+(f.y2-f.y1)*t2);ctx.stroke()}
+    else if(f.type=='shell'){if(!seen(f.x2,f.y2)&&!seen(f.x1,f.y1))continue;const t=1-a,x=f.x1+(f.x2-f.x1)*t,y=f.y1+(f.y2-f.y1)*t,r=1.1+Math.sin(t*3.14)*1.1;
+      ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.arc(x+2,y+3,r,0,6.283);ctx.fill();ctx.fillStyle='#e6dcc0';ctx.beginPath();ctx.arc(x,y,r,0,6.283);ctx.fill()}
+    else if(f.type=='flash'){if(!seen(f.x,f.y))continue;ctx.fillStyle='#f0deb0';ctx.globalAlpha=a*.9;ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,6.283);ctx.fill()}
+    else if(f.type=='boom'){if(!seen(f.x,f.y))continue;const t=1-a;ctx.fillStyle='#d9a066';ctx.globalAlpha=a*.42;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(.45+t*.7),0,6.283);ctx.fill();
+      ctx.strokeStyle='#e8d6b0';ctx.globalAlpha=a*.5;ctx.lineWidth=1;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(.5+t*.8),0,6.283);ctx.stroke()}
+    else if(f.type=='ping'){ctx.strokeStyle=march?GOLD:'#dfe2e6';ctx.globalAlpha=a;ctx.lineWidth=1.5/z;ctx.beginPath();ctx.arc(f.x,f.y,(6+(1-a)*14)/Math.min(1,z),0,6.283);ctx.stroke()}
     ctx.globalAlpha=1;}
-  if(drag){const d=drag,en=toW(d.px,d.py),px=1/z,c=march?'216,184,96':'223,226,230';
-    ctx.strokeStyle=`rgba(${c},.55)`;ctx.lineWidth=1.5*px;ctx.setLineDash([4*px,4*px]);ctx.beginPath();ctx.arc(d.sx,d.sy,d.r,0,6.283);ctx.stroke();ctx.setLineDash([]);
-    let n=0;ctx.fillStyle='#fff';for(const u of units)if(u.s==1&&match(u)&&(u.x-d.sx)**2+(u.y-d.sy)**2<d.r*d.r){n++;ctx.fillRect(u.x-px,u.y-px,2*px,2*px)}
-    const len=Math.hypot(en.x-d.sx,en.y-d.sy);
-    if(d.moved&&len>1){const ux=(en.x-d.sx)/len,uy=(en.y-d.sy)/len,a=7*px;ctx.strokeStyle=`rgba(${c},.75)`;ctx.lineWidth=3*px;
-      if(march)ctx.setLineDash([9*px,6*px]);ctx.beginPath();ctx.moveTo(d.sx,d.sy);ctx.lineTo(en.x,en.y);ctx.stroke();ctx.setLineDash([]);
-      ctx.fillStyle=`rgba(${c},.85)`;ctx.beginPath();ctx.moveTo(en.x+ux*a,en.y+uy*a);ctx.lineTo(en.x-ux*a-uy*a,en.y-uy*a+ux*a);ctx.lineTo(en.x-ux*a+uy*a,en.y-uy*a-ux*a);ctx.fill();}
-    ctx.fillStyle='#dfe2e6';ctx.font=`600 ${12*px}px sans-serif`;ctx.fillText((flt=='all'?'':T[flt].sym+' ')+n+(march?' · марш':''),d.sx,d.sy-d.r-10*px);}
+  const g=gest;
+  if(g&&g.mode=='box'){const en=toW(g.px,g.py),px=1/z,bx=Math.min(g.w.x,en.x),by=Math.min(g.w.y,en.y),bw=Math.abs(en.x-g.w.x),bh=Math.abs(en.y-g.w.y);
+    ctx.fillStyle='rgba(223,226,230,.07)';ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle='rgba(223,226,230,.75)';ctx.lineWidth=1.3*px;ctx.setLineDash([5*px,4*px]);ctx.strokeRect(bx,by,bw,bh);ctx.setLineDash([]);
+    let n=0;for(const u of units)if(u.s==1&&u.x>=bx&&u.x<=bx+bw&&u.y>=by&&u.y<=by+bh)n++;
+    if(bw>4*px||bh>4*px){ctx.fillStyle='#dfe2e6';ctx.font=`600 ${12*px}px sans-serif`;ctx.fillText(n,bx+bw/2,by-9*px)}
+    else{ctx.strokeStyle='rgba(223,226,230,.8)';ctx.lineWidth=1.5*px;ctx.beginPath();ctx.arc(en.x,en.y,16*px,0,6.283);ctx.stroke()}}
   // screen-space overlays: minimap, toasts, pause
   ctx.setTransform(dpr,0,0,dpr,0,0);const m=mmRect(),kx=m.w/W,ky=m.h/H;
   ctx.globalAlpha=.92;ctx.drawImage(mmC,m.x,m.y,m.w,m.h);ctx.globalAlpha=1;
   if(fog){ctx.globalAlpha=.8;ctx.drawImage(fogC,m.x,m.y,m.w,m.h);ctx.globalAlpha=1}
   for(const mn of mines){ctx.fillStyle=mn.owner?COL[mn.owner]:GOLD;const q=mn.kind=='post'?2.5:1.8;ctx.fillRect(m.x+mn.x*kx-q,m.y+mn.y*ky-q,q*2,q*2)}
-  for(const u of units){if(u.s==2&&!seen(u.x,u.y))continue;ctx.fillStyle=COL[u.s];ctx.fillRect(m.x+u.x*kx-.75,m.y+u.y*ky-.75,1.5,1.5)}
+  for(const u of units){if(u.s==2&&!seen(u.x,u.y))continue;ctx.fillStyle=u.sel?'#fff':COL[u.s];ctx.fillRect(m.x+u.x*kx-.75,m.y+u.y*ky-.75,1.5,1.5)}
   for(const s of[1,2]){const hq=S[s].hq;ctx.fillStyle=COL[s];ctx.fillRect(m.x+hq.x*kx-3,m.y+hq.y*ky-3,6,6)}
   if(time-alertT<3&&(time*4|0)%2==0){const hq=S[1].hq;ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.strokeRect(m.x+hq.x*kx-6,m.y+hq.y*ky-6,12,12)}
   ctx.strokeStyle='rgba(223,226,230,.8)';ctx.lineWidth=1;ctx.strokeRect(m.x+Math.max(0,cam.x)*kx,m.y+Math.max(0,cam.y)*ky,Math.min(W,vw/z)*kx,Math.min(H,vh/z)*ky);
   ctx.strokeStyle='rgba(0,0,0,.6)';ctx.strokeRect(m.x-.5,m.y-.5,m.w+1,m.h+1);
   ctx.font='600 12px system-ui,sans-serif';let ty=18;
-  for(const t of toasts){const a=Math.min(1,t.life),w=ctx.measureText(t.msg).width+18,cx=(vw-m.w-8)/2;
+  for(const t of toasts){const a=Math.min(1,t.life),w=ctx.measureText(t.msg).width+18,cx=Math.max(w/2+6,(vw-m.w-8)/2);
     ctx.globalAlpha=a*.85;ctx.fillStyle='#1c2026';ctx.fillRect(cx-w/2,ty-11,w,22);ctx.globalAlpha=a;ctx.fillStyle='#dfe2e6';ctx.fillText(t.msg,cx,ty+.5);ty+=26}
   ctx.globalAlpha=1;
   if(paused&&running){ctx.fillStyle='rgba(14,16,19,.55)';ctx.fillRect(0,0,vw,vh);ctx.fillStyle='#dfe2e6';ctx.font='600 20px system-ui,sans-serif';ctx.fillText('Пауза',vw/2,vh/2)}
@@ -598,13 +709,14 @@ function step(dt){frame++;repathBudget=2;time+=dt;
   updHQ(S[1].hq,dt);updHQ(S[2].hq,dt);
   units=units.filter(u=>!u.dead);buildGrid();separate();updMines(dt);updAI(dt);
   fogT-=dt;if(fogT<=0){fogT=.12;updFog(.4)}
-  fx=fx.filter(f=>(f.life-=dt)>0);toasts=toasts.filter(t=>(t.life-=dt)>0);}
+  fx=fx.filter(f=>f.d>0?((f.d-=dt),true):(f.life-=dt)>0);toasts=toasts.filter(t=>(t.life-=dt)>0);
+  decals=decals.filter(d=>(d.life-=dt)>0);if(decals.length>220)decals.splice(0,decals.length-220);}
 function loop(now){let dt=Math.min(.05,(now-last)/1000);last=now;
   if(running){camTick(dt);if(!paused)for(let i=0;i<speed&&running;i++)step(dt);hudT-=dt;if(hudT<=0){hudT=.1;hud()}}
   if(S)draw();requestAnimationFrame(loop)}
 addEventListener('resize',resize);resize();mapBtns();
 newGame();hud();requestAnimationFrame(loop);
 // test hook: fast-forward the simulation
-window.__front={step:(n,dt=.05)=>{for(let i=0;i<n&&running;i++)step(dt)},state:()=>({S,units,mines,time,over,mapName}),buy,send,setFlt};
+window.__front={step:(n,dt=.05)=>{for(let i=0;i<n&&running;i++)step(dt)},state:()=>({S,units,mines,time,over,mapName,cam}),buy,send,setSel};
 })();
 </script>
