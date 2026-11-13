@@ -43,7 +43,7 @@ button:disabled{opacity:.45;cursor:default}
 button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
 button.on{background:var(--sel)}
 .k{padding:4px 2px 6px;display:grid;gap:0;line-height:1.2}
-.k span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
 .k .n{font-size:11px}
 .k .d{font-size:9px;font-weight:600;color:var(--muted)}
 .k .c{font-size:11.5px;color:var(--gold)}
@@ -52,12 +52,24 @@ button.on{background:var(--sel)}
 .tech{background:var(--tech)}
 #bAir{background:var(--atk)}#bSup{background:var(--buy)}
 @media (max-width:370px){.k .n{font-size:9.5px}.k .d{font-size:8px}.k .c{font-size:10.5px}#panel{gap:4px}.row{gap:4px}}
-#ov{position:absolute;inset:0;background:rgba(22,36,60,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:16px;text-align:center;z-index:5;overflow:auto}
-#ov h1{font-size:26px;font-weight:800;color:var(--gold);text-shadow:0 2px 0 rgba(0,0,0,.35);text-wrap:balance}
-#ov p{font-size:12px;font-weight:600;color:var(--muted);line-height:1.45;max-width:420px}
-#ov p b{color:var(--fg);font-weight:800}
-#ov .d{display:flex;gap:8px;width:100%;max-width:340px}
-#ov .lbl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}
+#ov{position:absolute;inset:0;z-index:5;overflow:auto;display:flex;align-items:center;justify-content:center;padding:14px;
+  background:radial-gradient(120% 90% at 50% 0%,rgba(58,96,150,.96),rgba(18,30,52,.97) 70%)}
+.sheet{width:100%;max-width:400px;display:grid;gap:10px;justify-items:center;text-align:center}
+.crest{width:74px;height:74px}
+#ovh{font-size:30px;font-weight:800;line-height:1.05;color:var(--gold);text-shadow:0 3px 0 rgba(0,0,0,.35);text-wrap:balance}
+.sub{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.tips{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;text-align:left}
+.tips li{background:rgba(255,255,255,.07);border-radius:10px;padding:7px 9px;font-size:11px;font-weight:600;color:var(--muted);line-height:1.3;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.tips b{display:block;color:var(--fg);font-weight:800;font-size:11.5px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%}
+.stats div{background:rgba(255,255,255,.08);border-radius:10px;padding:8px 2px;font-size:10px;font-weight:700;color:var(--muted);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.stats b{display:block;font-size:17px;color:var(--fg);font-weight:800;font-variant-numeric:tabular-nums}
+.note{font-size:12px;font-weight:600;color:var(--muted);line-height:1.4;max-width:340px}
+.lbl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}
+.d{display:flex;gap:8px;width:100%;max-width:320px}
+.d button{padding:10px 4px 12px;font-size:14px}
+.d .go{background:var(--buy)}.d .hard{background:var(--atk)}
+@media (max-height:620px){.crest{width:48px;height:48px}#ovh{font-size:24px}.tips li{padding:5px 7px}}
 </style>
 
 <div id="app">
@@ -73,20 +85,18 @@ button.on{background:var(--sel)}
   </div>
   <div id="wrap">
     <canvas id="c"></canvas>
-    <div id="ov">
+    <div id="ov"><div class="sheet">
+      <svg class="crest" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3 56 12v20c0 14-10 23-24 29C18 55 8 46 8 32V12z" fill="#235f9f" stroke="#ffc93c" stroke-width="3" stroke-linejoin="round"/><path d="M32 9 50 16v16c0 10-7 18-18 23z" fill="#3f8fe0"/><path d="m32 18 4.1 8.6 9.4 1.2-6.9 6.5 1.8 9.3L32 39.1l-8.4 4.5 1.8-9.3-6.9-6.5 9.4-1.2z" fill="#ffc93c" stroke="#1c2a3a" stroke-width="1.5" stroke-linejoin="round"/></svg>
       <h1 id="ovh">Фронт: Застава</h1>
-      <p id="ovp">Продержись <b>14 волн</b> или снеси <b>цитадель</b> на том берегу. Новобранцы сами идут из казармы за оружием и в бой через мост.<br>
-      <b>Приказ</b> «оборона» держит войска на своём берегу, «штурм» ведёт всех на цитадель; пока целы её ДОТы, она почти неуязвима.<br>
-      <b>Веди пальцем по полю</b> — командир бьёт туда. Следи за нагревом ствола: в <b>золотой зоне</b> урон двойной, перегрев глушит огонь.<br>
-      <b>Взвод</b> решает, кого вооружать: стрелков, гранатомётчиков против брони или снайперов. <b>ДОТ у моста</b> достаётся тому, чья пехота простоит рядом 5 секунд, и даёт +30% золота.<br>
-      <b>Сталь</b> идёт за волны, ДОТы и конвои: на неё берут оружие командиру, мины и модули танкам. <b>Авиаудар</b> — нажми и ткни в цель.</p>
-      <div class="lbl">Сложность — старт</div>
+      <div class="sub" id="ovs">14 волн · мост · цитадель на том берегу</div>
+      <div id="ovb" style="display:contents"></div>
+      <div class="lbl" id="ovl">Сложность</div>
       <div class="d">
-        <button data-d="1">Норм</button>
-        <button data-d="1.12">Жёстко</button>
+        <button data-d="1" class="go">Норм</button>
+        <button data-d="1.12" class="hard">Жёстко</button>
       </div>
       <div class="d" id="ovr" hidden><button id="bRes" class="on">Продолжить бой</button></div>
-    </div>
+    </div></div>
   </div>
   <div id="panel">
     <div class="row r5" id="cards"></div>
@@ -108,9 +118,9 @@ button.on{background:var(--sel)}
 <script>
 (()=>{
 // ---------- world: fixed 400×640 field scaled to the canvas, so balance does not depend on screen size ----------
-const W=400,H=640,EW=70,RIV=250,RH=14,BW=110,WALL=430,GX=200,GW=90;
-const TENT={x:60,y:566},ARM={x:154,y:548},MED={x:246,y:576},FAC={x:340,y:566},CMD={x:138,y:WALL-8},DOT={x:GX+84,y:RIV+46};
-const WAVES=14,WDUR=50,REST=5,CAP=45,EHP=60000;
+const W=400,H=740,EW=64,RIV=300,RH=16,BW=110,WALL=540,GX=200,GW=90;
+const TENT={x:60,y:676},ARM={x:154,y:656},MED={x:246,y:686},FAC={x:340,y:676},CMD={x:138,y:WALL-8},DOT={x:GX+84,y:RIV+46};
+const WAVES=14,WDUR=50,REST=5,LIM=400,EHP=60000;
 const $=id=>document.getElementById(id);
 const cv=$('c'),ctx=cv.getContext('2d'),wrap=$('wrap');
 const dpr=Math.min(2.5,Math.max(1,window.devicePixelRatio||1));
@@ -154,13 +164,13 @@ function newGame(){
   for(const dx of[-64,64])G.red.push(enemy('bunker',GX+dx,EW+16,1));
   toast('Готовься: первая волна через '+REST+' с');
 }
-function soldier(x,y,a,kind){const b={id:G.uid++,tank:false,kind,tier:a,x,y,speed:42,r:7,cd:Math.random()*.2,a:-1.57,ta:-1.57,cl:{}};
+function soldier(x,y,a,kind){const b={id:G.uid++,tank:false,kind,tier:a,x,y,speed:42,r:8,cd:Math.random()*.2,a:-1.57,ta:-1.57,cl:{}};
   if(kind=='rpg')Object.assign(b,{hp:42+16*a,dmg:16+7*a,range:108,rate:1.5,arm:2.5,soft:.5,shell:true});
   else if(kind=='snipe')Object.assign(b,{hp:34+12*a,dmg:22+9*a,range:185,rate:1.6});
   else Object.assign(b,{hp:45+18*a,dmg:7+3*a,range:116+6*a,rate:Math.max(.3,.6-.05*a)});
   b.max=b.hp;return b}
-function tank(x,y,t){const hp=300+200*t;return{id:G.uid++,tank:true,heavy:t>=3,kind:'tank',x,y,hp,max:hp,dmg:40+30*t,range:150+10*t,rate:1.2,cd:.2,mgCd:0,speed:28,r:t>=3?19:15,tier:t,arm:1.2,shell:true,a:-1.57,ta:-1.57,cl:{}}}
-const SCALE=1.14;
+function tank(x,y,t){const hp=300+200*t;return{id:G.uid++,tank:true,heavy:t>=3,kind:'tank',x,y,hp,max:hp,dmg:40+30*t,range:150+10*t,rate:1.2,cd:.2,mgCd:0,speed:28,r:t>=3?21:17,tier:t,arm:1.2,shell:true,a:-1.57,ta:-1.57,cl:{}}}
+const SCALE=1.148;
 function enemy(type,x,y,w){const s=SCALE**(w-1)*diff;let e;
   if(type=='tank')e={hp:300*s,dmg:26*s,range:140,rate:1.4,speed:22,r:15,reward:16,arm:1.2,shell:true};
   else if(type=='boss')e={hp:1400*s*(w>=WAVES?1.3:1),dmg:50*s,range:160,rate:1,speed:16,r:23,reward:80,arm:1.2,shell:true};
@@ -173,7 +183,8 @@ function enemy(type,x,y,w){const s=SCALE**(w-1)*diff;let e;
 const armored=o=>o.tank||o.type=='tank'||o.type=='boss'||o.type=='bunker'||o.type=='truck';
 function toast(msg){G.toasts.push({msg,life:3.2});if(G.toasts.length>2)G.toasts.shift()}
 function ftext(t,x,y,c,s){G.txt.push({t,x,y,a:1,c:c||'#ffc93c',s:s||12})}
-function boom(x,y,r,c){for(let i=0;i<12;i++){const a=Math.random()*6.283,v=20+Math.random()*r*2.6;G.fxp.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,r:2+Math.random()*4,life:.3+Math.random()*.25,max:.55,c:i%2?c:'#ffe08a'})}}
+function boom(x,y,r,c){for(let i=0;i<12;i++){const a=Math.random()*6.283,v=20+Math.random()*r*2.6;G.fxp.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,r:2+Math.random()*4,life:.3+Math.random()*.25,max:.55,c:i%2?c:'#ffe08a'})}
+  if(r>10)for(let i=0;i<3;i++)G.fxp.push({x:x+rnd(-r,r)*.3,y:y+rnd(-r,r)*.3,vx:rnd(-6,6),vy:-rnd(10,22),r:r*.25+2,g:r*.5,life:1,max:1,c:'#5b6068',sm:1});if(G.fxp.length>500)G.fxp.splice(0,G.fxp.length-500)}
 function decal(x,y,r,wreck){G.decals.push({x,y,r,wreck});if(G.decals.length>70)G.decals.shift()}
 function fire(s,t,team){const dx=t.x-s.x,dy=t.y-s.y,d=Math.hypot(dx,dy)||1,v=s.shell?300:440;
   s.ta=Math.atan2(dy,dx);if(!armored(s))s.a=s.ta;
@@ -226,16 +237,16 @@ function step(dt){if(G.over)return;G.time+=dt;
       if(w%5==0||w==WAVES){G.red.push(enemy('boss',GX,EW+20,w));toast(w==WAVES?'Последняя волна: идёт главный босс!':'Волна '+w+': танк-босс!')}
       if(w%3==0){G.red.push(enemy('truck',-18,EW+44,w));toast('Конвой снабжения на том берегу — сбей его!')}}}
   else if(!G.done){G.wt+=dt;G.gt+=dt;const w=G.wave,gi=Math.max(.9,2.7-.14*w);
-    if(G.gt>=gi&&G.red.length<60){G.gt=0;G.grp++;const n=2+(Math.random()*3|0)+(w/4|0),cx=GX+rnd(-70,70);
+    if(G.gt>=gi&&G.red.length<LIM){G.gt=0;G.grp++;const n=2+(Math.random()*3|0)+(w/4|0),cx=GX+rnd(-70,70);
       for(let k=0;k<n;k++){const r=Math.random(),t=w>=2&&r<.17?'rpg':w>=3&&r<.3?'snipe':'rifle';G.red.push(enemy(t,clamp(cx+(k-n/2)*18,GX-110,GX+110),EW+rnd(14,30),w))}
       if(w>=2&&G.grp%Math.max(3,7-(w/3|0))==0)G.red.push(enemy('tank',GX+rnd(-60,60),EW+18,w))}
     if(G.wt>=WDUR){if(w>=WAVES)G.done=true;else{G.rest=REST;toast('Передышка: волна '+(w+1)+' через '+REST+' с')}}}
   if(G.done&&!G.red.some(e=>!e.fixed)){end(true);return}
   // conveyor: recruit -> armory -> soldier of the chosen kind
-  G.recT+=dt;if(G.recT>=recInt(G.lv.bar)&&G.rec.length<14&&G.green.length<CAP){G.recT=0;G.rec.push({x:TENT.x+rnd(-8,8),y:TENT.y+6,speed:80+G.lv.bar*5})}
+  G.recT+=dt;if(G.recT>=recInt(G.lv.bar)&&G.rec.length<20&&G.green.length<LIM){G.recT=0;G.rec.push({x:TENT.x+rnd(-8,8),y:TENT.y+6,speed:80+G.lv.bar*5})}
   for(let i=G.rec.length-1;i>=0;i--){const r=G.rec[i],dx=ARM.x-r.x,dy=ARM.y+14-r.y,d=Math.hypot(dx,dy);
     if(d<10){G.rec.splice(i,1);G.green.push(soldier(ARM.x+rnd(-12,12),ARM.y-8,G.lv.arm,G.spec))}else{r.x+=dx/d*r.speed*dt;r.y+=dy/d*r.speed*dt}}
-  if(G.lv.tank>0){G.tankT+=dt;if(G.tankT>=tankInt()&&G.green.length<CAP){G.tankT=0;G.green.push(tank(FAC.x,FAC.y-22,G.lv.tank));snd('up')}}
+  if(G.lv.tank>0){G.tankT+=dt;if(G.tankT>=tankInt()&&G.green.length<LIM){G.tankT=0;G.green.push(tank(FAC.x,FAC.y-22,G.lv.tank));snd('up')}}
   for(let i=G.gates.length-1;i>=0;i--)if((G.gates[i].life-=dt)<=0)G.gates.splice(i,1);
   // our troops
   const heal=G.lv.med;
@@ -249,7 +260,7 @@ function step(dt){if(G.over)return;G.time+=dt;
       if(ne&&nd<=u.range&&u.cd<=0){fire(u,ne,'g');u.cd=u.rate}}
     else{
       for(const g of G.gates)if(!u.cl[g.id]&&Math.abs(u.y-g.y)<12&&Math.abs(u.x-g.x)<g.w/2){u.cl[g.id]=1;
-        if(G.green.length<CAP+12){const c=u.tank?tank(u.x+22,u.y-4,u.tier):soldier(u.x+rnd(-14,14),u.y-8,u.tier,u.kind);c.cl[g.id]=1;G.green.push(c);snd('clone');ftext('×2',u.x,u.y-14,'#9fd0ff',13)}}
+        if(G.green.length<LIM){const c=u.tank?tank(u.x+22,u.y-4,u.tier):soldier(u.x+rnd(-14,14),u.y-8,u.tier,u.kind);c.cl[g.id]=1;G.green.push(c);snd('clone');ftext('×2',u.x,u.y-14,'#9fd0ff',13)}}
       if(ne&&nd<=u.range){if(u.cd<=0){fire(u,ne,'g');u.cd=u.rate}}
       else if(ne&&nd<170)move(u,ne.x,ne.y,dt);
       else if(!G.assault){const hx=GX+((u.id*37)%150)-75,hy=RIV+34+((u.id*13)%5)*13;if(Math.hypot(hx-u.x,hy-u.y)>6)move(u,hx,hy,dt)}
@@ -315,10 +326,10 @@ function sep(list,dt){for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;
   if(Math.abs(dx)>m||Math.abs(dy)>m)continue;const d=Math.hypot(dx,dy);if(d>.1&&d<m){const p=(m-d)*3*dt,nx=dx/d,ny=dy/d;if(!a.fixed){a.x-=nx*p;a.y-=ny*p}if(!b.fixed){b.x+=nx*p;b.y+=ny*p}}}
   for(const u of list){if(u.type=='truck')continue;u.x=clamp(u.x,10,W-10);if(Math.abs(u.y-RIV)<RH)u.x=clamp(u.x,GX-BW/2+u.r,GX+BW/2-u.r)}}
 function end(win){G.over=true;G.win=win;running=false;snd(win?'up':'lose');
-  $('ov').hidden=false;$('ovr').hidden=true;$('ovh').textContent=win?(G.ehp<=0?'Цитадель взята':'Застава выстояла'):'Стена пала';
-  $('ovp').innerHTML=(win?(G.ehp<=0?`Цитадель снесена на волне <b>${G.wave}</b>.`:`Все ${WAVES} волн отбиты.`):`Тебя прорвали на волне <b>${G.wave}</b> из ${WAVES}.`)+
-    `<br>Время <b>${fmt(G.time)}</b>, уничтожено <b>${G.kills}</b>, от стены осталось <b>${Math.round(G.hp/G.max*100)}%</b>, от цитадели — <b>${Math.round(G.ehp/G.emax*100)}%</b>.`+
-    (win?'':'<br>Копи взвод за закрытыми воротами, ставь гранатомётчиков против танков и держи ствол в золотой зоне.')}
+  $('ov').hidden=false;$('ovr').hidden=true;
+  sheet(win?(G.ehp<=0?'Цитадель взята':'Застава выстояла'):'Стена пала',win?(G.ehp<=0?`Снесена на волне ${G.wave}`:`Все ${WAVES} волн отбиты`):`Прорыв на волне ${G.wave} из ${WAVES}`,
+    `<div class="stats"><div><b>${fmt(G.time)}</b>время</div><div><b>${G.kills}</b>уничтожено</div><div><b>${Math.round(G.hp/G.max*100)}%</b>стена</div><div><b>${Math.round(G.ehp/G.emax*100)}%</b>цитадель</div></div>`+
+    (win?'':'<p class="note">Копи взвод за закрытыми воротами, ставь гранатомётчиков против танков и держи ствол в золотой зоне.</p>'),'Ещё раз')}
 const fmt=t=>`${t/60|0}:${String(t%60|0).padStart(2,'0')}`;
 
 // ---------- input ----------
@@ -338,8 +349,16 @@ $('bSpec').onclick=act(()=>setSpec());$('bWpn').onclick=act(()=>nextWpn());$('bM
 $('bSpd').onclick=e=>{speed=speed==1?1.5:1;e.currentTarget.textContent='×'+speed;e.currentTarget.classList.toggle('on',speed>1)};
 function sndBtn(){$('bSnd').textContent=muted?'Тихо':'Звук';$('bSnd').classList.toggle('on',!muted)}
 $('bSnd').onclick=()=>{muted=!muted;audio();sndBtn();try{localStorage.setItem('zastava',JSON.stringify({muted}))}catch(_){}};
-const HELP=$('ovp').innerHTML;
-$('bHelp').onclick=()=>{if(!running)return;paused=true;G.ptr.on=false;$('ovh').textContent='Пауза';$('ovp').innerHTML=HELP;$('ovr').hidden=false;$('ov').hidden=false};
+const HELP=`<ul class="tips">
+  <li><b>Командир</b>Веди пальцем по полю — он бьёт туда. В золотой зоне нагрева урон двойной.</li>
+  <li><b>Приказ</b>«Оборона» держит свой берег, «штурм» ведёт всех на цитадель.</li>
+  <li><b>Взвод</b>Стрелки, гранатомётчики против брони или снайперы — меняй по ходу боя.</li>
+  <li><b>ДОТ у моста</b>Чья пехота простоит рядом 5 секунд, тому он и служит. Твой даёт +30% золота.</li>
+  <li><b>Сталь</b>Идёт за волны, ДОТы и конвои: оружие командиру, мины, модули танкам.</li>
+  <li><b>Цитадель</b>Почти неуязвима, пока целы два её ДОТа. Авиаудар — нажми и ткни в цель.</li></ul>`;
+function sheet(h,sub,body,lbl){$('ovh').textContent=h;$('ovs').textContent=sub;$('ovb').innerHTML=body;$('ovl').textContent=lbl}
+sheet('Фронт: Застава','14 волн · мост · цитадель на том берегу',HELP,'Сложность — старт');
+$('bHelp').onclick=()=>{if(!running)return;paused=true;G.ptr.on=false;sheet('Пауза',`Волна ${G.wave} из ${WAVES}`,HELP,'Начать заново');$('ovr').hidden=false;$('ov').hidden=false};
 $('bRes').onclick=()=>{paused=false;$('ov').hidden=true};
 document.querySelectorAll('#ov [data-d]').forEach(b=>b.onclick=()=>{audio();diff=+b.dataset.d;newGame();paused=false;running=true;$('ov').hidden=true;hud()});
 function abBtn(id,tid,k){const a=AB[k],c=G.cd[k];$(tid).textContent=c>0?Math.ceil(c)+' с':a.cost;$(id).disabled=c>0||G.gold<a.cost}
@@ -413,6 +432,11 @@ function scenery(){bgC=document.createElement('canvas');const q=2;bgC.width=(W+B
   for(let i=0;i<70;i++)dab(-BX+rs(i)*(W+BX*2),EW+rs(i+40)*(WALL-EW),40+rs(i+9)*70,rs(i+3)<.5?'92,146,78':'172,206,120',.25);
   g.fillStyle='#e0cf9f';g.beginPath();g.moveTo(GX-GW*.8,EW);g.lineTo(GX+GW*.8,EW);g.lineTo(GX+BW/2,RIV);g.lineTo(GX+GW*.8,WALL);g.lineTo(GX-GW*.8,WALL);g.lineTo(GX-BW/2,RIV);g.fill();
   g.strokeStyle='rgba(126,100,58,.28)';g.lineWidth=4;g.setLineDash([9,8]);g.beginPath();g.moveTo(GX-22,EW);g.lineTo(GX-22,WALL);g.moveTo(GX+22,EW);g.lineTo(GX+22,WALL);g.stroke();g.setLineDash([]);
+  g.strokeStyle='rgba(126,100,58,.5)';g.lineWidth=2;g.beginPath();g.moveTo(GX-GW*.8,EW);g.lineTo(GX-BW/2,RIV);g.lineTo(GX-GW*.8,WALL);g.moveTo(GX+GW*.8,EW);g.lineTo(GX+BW/2,RIV);g.lineTo(GX+GW*.8,WALL);g.stroke();
+  for(let i=0;i<260;i++){const x=-BX+rs(i+500)*(W+BX*2),y=EW+16+rs(i+600)*(WALL-EW-30);if(Math.abs(x-GX)<GW*.9||Math.abs(y-RIV)<RH+8)continue;
+    if(i%5==0){g.fillStyle=i%10?'#fff6d8':'#ffd76a';g.beginPath();g.arc(x,y,1.5,0,6.283);g.fill()}
+    else if(i%17==0){g.fillStyle='rgba(30,40,30,.25)';g.beginPath();g.ellipse(x+2,y+3,8,4,0,0,6.283);g.fill();g.fillStyle='#9a9c98';g.beginPath();g.ellipse(x,y,7,5,0,0,6.283);g.fill();g.fillStyle='#c4c6c2';g.beginPath();g.ellipse(x-1.5,y-1.5,4,2.4,0,0,6.283);g.fill()}
+    else{g.strokeStyle='rgba(52,110,60,.55)';g.lineWidth=1.2;g.beginPath();g.moveTo(x,y);g.lineTo(x-2,y-5);g.moveTo(x,y);g.lineTo(x+2.5,y-4.5);g.moveTo(x,y);g.lineTo(x,y-6);g.stroke()}}
   // river and bridge
   g.fillStyle='rgba(236,220,164,.7)';g.fillRect(-BX,RIV-RH-4,W+BX*2,RH*2+8);g.fillStyle='#4ea0d6';g.fillRect(-BX,RIV-RH,W+BX*2,RH*2);g.fillStyle='rgba(160,214,244,.6)';g.fillRect(-BX,RIV-5,W+BX*2,7);
   g.fillStyle='#b88a58';g.strokeStyle=OUT;g.lineWidth=1.5;g.fillRect(GX-BW/2,RIV-RH-6,BW,RH*2+12);g.strokeRect(GX-BW/2,RIV-RH-6,BW,RH*2+12);
@@ -429,6 +453,10 @@ function scenery(){bgC=document.createElement('canvas');const q=2;bgC.width=(W+B
   for(let y=WALL;y<H;y+=40){g.beginPath();g.moveTo(-BX,y);g.lineTo(W+BX,y);g.stroke()}
   g.strokeStyle='rgba(255,255,255,.6)';g.lineWidth=3;g.setLineDash([9,8]);g.beginPath();g.moveTo(TENT.x,TENT.y);g.lineTo(ARM.x,ARM.y+14);g.lineTo(GX-8,WALL);g.moveTo(FAC.x,FAC.y);g.lineTo(GX+16,WALL);g.stroke();g.setLineDash([]);
   wall(WALL,'#8d8f93','#c9ccd0',GW);wall(EW,'#7d4a42','#b97468',GW*1.5);
+  const tower=(x,y,c)=>{g.fillStyle='rgba(20,30,40,.25)';g.beginPath();g.ellipse(x+3,y+6,15,9,0,0,6.283);g.fill();g.strokeStyle=OUT;g.lineWidth=1.5;g.fillStyle=c.dark;g.beginPath();g.arc(x,y,14,0,6.283);g.fill();g.stroke();
+    g.fillStyle=c.base;g.beginPath();g.arc(x,y,10,0,6.283);g.fill();g.stroke();g.fillStyle='rgba(255,255,255,.25)';g.beginPath();g.arc(x-2.5,y-2.5,5,0,6.283);g.fill();
+    for(let k=0;k<8;k++){const a=k*.785;g.fillStyle=c.dark;g.fillRect(x+Math.cos(a)*12-2,y+Math.sin(a)*12-2,4,4)}};
+  for(const dx of[-1,1]){tower(GX+dx*(W/2-16),WALL,PAL.g);tower(GX+dx*(W/2-16),EW,PAL.r)}
   // citadel
   g.strokeStyle=OUT;g.lineWidth=1.5;rr(g,GX-58,8,116,42,7);g.fillStyle=PAL.r.dark;g.fill();g.stroke();rr(g,GX-50,14,100,30,5);g.fillStyle=PAL.r.base;g.fill();g.stroke();
   g.fillStyle='rgba(255,255,255,.18)';g.fillRect(GX-50,14,100,13);for(const dx of[-58,58]){g.fillStyle=PAL.r.dark;g.beginPath();g.arc(GX+dx,29,9,0,6.283);g.fill();g.stroke();g.fillStyle=PAL.r.light;g.beginPath();g.arc(GX+dx,29,4,0,6.283);g.fill()}}
@@ -458,6 +486,7 @@ function draw(){
   const sh=G.shake>0?G.shake*14:0;
   ctx.setTransform(dpr*vs,0,0,dpr*vs,(ox+rnd(-sh,sh))*dpr,(oy+rnd(-sh,sh))*dpr);
   ctx.drawImage(bgC,-BX,0,W+BX*2,H);
+  ctx.fillStyle='rgba(255,255,255,.4)';for(let i=0;i<22;i++){const x=((i*83+G.time*(14+i%3*5))%(W+BX*2))-BX;if(Math.abs(x-GX)<BW/2+4)continue;ctx.fillRect(x,RIV-RH+4+(i*7)%(RH*2-9),9+(i%4)*4,1.6)}
   for(const d of G.decals){ctx.fillStyle=d.wreck?'rgba(30,28,26,.55)':'rgba(40,34,26,.32)';ctx.beginPath();ctx.ellipse(d.x,d.y,d.r*1.25,d.r,0,0,6.283);ctx.fill();
     if(d.wreck){ctx.fillStyle='rgba(20,20,20,.6)';ctx.fillRect(d.x-d.r*.6,d.y-d.r*.4,d.r*1.2,d.r*.8);ctx.fillStyle=`rgba(90,90,90,${.18+.1*Math.sin(G.time*2+d.x)})`;ctx.beginPath();ctx.arc(d.x+Math.sin(G.time+d.y)*3,d.y-d.r-4-((G.time*6+d.x)%10),4,0,6.283);ctx.fill()}}
   drawBuildings();
@@ -466,14 +495,14 @@ function draw(){
     const p=Math.abs(D.prog)/5;if(p>0&&p<1){ctx.strokeStyle=D.prog>0?PAL.g.base:PAL.r.base;ctx.lineWidth=3;ctx.beginPath();ctx.arc(DOT.x,DOT.y,18,-1.571,-1.571+6.283*p);ctx.stroke()}
     label(D.owner=='g'?'ДОТ +30%':'ДОТ',DOT.x,DOT.y+24,9,c)}
   for(const g of G.gates){ctx.fillStyle='rgba(63,143,224,.8)';ctx.strokeStyle='#cfe6ff';ctx.lineWidth=2;rr(ctx,g.x-g.w/2,g.y-10,g.w,20,6);ctx.fill();ctx.stroke();label('×2 · '+Math.ceil(g.life)+' с',g.x,g.y+.5,12)}
-  for(const r of G.rec){shadow(r.x,r.y,6,3);blit(SPR.n.man,r.x,r.y,Math.atan2(ARM.y+14-r.y,ARM.x-r.x),2.2)}
-  for(const u of G.green){if(u.tank){const s=u.heavy?2.8:2.2;shadow(u.x,u.y,u.r+3,u.r*.6);blit(SPR.g.hull,u.x,u.y,u.a,s);blit(SPR.g.tur,u.x,u.y,u.ta,s);if(u.hp<u.max)hpbar(u.x,u.y-u.r-10,30,u.hp/u.max,'#7be07a')}
-    else{shadow(u.x,u.y,6,3);blit(SPR.g[u.kind=='rifle'?'man':u.kind],u.x,u.y,u.a,2.1)}}
+  for(const r of G.rec){shadow(r.x,r.y,6,3);blit(SPR.n.man,r.x,r.y,Math.atan2(ARM.y+14-r.y,ARM.x-r.x),2.5)}
+  for(const u of G.green){if(u.tank){const s=u.heavy?3.2:2.6;shadow(u.x,u.y,u.r+3,u.r*.6);blit(SPR.g.hull,u.x,u.y,u.a,s);blit(SPR.g.tur,u.x,u.y,u.ta,s);if(u.hp<u.max)hpbar(u.x,u.y-u.r-10,30,u.hp/u.max,'#7be07a')}
+    else{shadow(u.x,u.y,6,3);blit(SPR.g[u.kind=='rifle'?'man':u.kind],u.x,u.y,u.a,2.5)}}
   for(const e of G.red){
     if(e.type=='bunker'){shadow(e.x,e.y+3,15,7);pill(e.x,e.y,PAL.r.light,e.ta,12);hpbar(e.x,e.y-21,30,e.hp/e.max,'#e2564a')}
     else if(e.type=='truck'){shadow(e.x,e.y,17,8);blit(SPR.r.truck,e.x,e.y,0,2.3);hpbar(e.x,e.y-18,30,e.hp/e.max,'#e2564a');label('конвой',e.x,e.y-25,9,'#9fd0ff')}
-    else if(armored(e)){const s=e.type=='boss'?3.5:2.2;shadow(e.x,e.y,e.r+3,e.r*.6);blit(SPR.r.hull,e.x,e.y,e.a,s);blit(SPR.r.tur,e.x,e.y,e.ta,s);hpbar(e.x,e.y-e.r-11,e.type=='boss'?46:30,e.hp/e.max,'#e2564a');if(e.type=='boss')label('Босс',e.x,e.y-e.r-18,10,'#ffc93c')}
-    else{shadow(e.x,e.y,6,3);blit(SPR.r[e.type=='rifle'?'man':e.type],e.x,e.y,e.a,2.1)}}
+    else if(armored(e)){const s=e.type=='boss'?3.8:2.5;shadow(e.x,e.y,e.r+3,e.r*.6);blit(SPR.r.hull,e.x,e.y,e.a,s);blit(SPR.r.tur,e.x,e.y,e.ta,s);hpbar(e.x,e.y-e.r-11,e.type=='boss'?46:30,e.hp/e.max,'#e2564a');if(e.type=='boss')label('Босс',e.x,e.y-e.r-18,10,'#ffc93c')}
+    else{shadow(e.x,e.y,6,3);blit(SPR.r[e.type=='rifle'?'man':e.type],e.x,e.y,e.a,2.5)}}
   const nt=Math.min(4,G.lv.tur);for(let i=0;i<nt;i++){const p=turPos(i);pill(p.x,p.y,'#e6ecf4',G.tur[i].a)}
   // commander with the barrel-heat gauge
   ctx.strokeStyle='rgba(255,201,60,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(CMD.x,CMD.y,13,0,6.283);ctx.stroke();blit(SPR.g.cmd,CMD.x,CMD.y,G.cmdA,2.3);
@@ -487,15 +516,17 @@ function draw(){
   const night=G.wave>=10;
   for(const b of G.bul){ctx.fillStyle=b.crit?'#ffc93c':b.team=='g'?'#fff3c4':'#ffc2ba';ctx.strokeStyle=b.team=='g'?'#c89a1e':'#b23a30';ctx.lineWidth=1;
     if(night&&!b.shell){ctx.strokeStyle=ctx.fillStyle;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.x-b.vx*.03,b.y-b.vy*.03);ctx.stroke()}
-    else{ctx.beginPath();ctx.arc(b.x,b.y,b.shell?4:b.dmg>40?3.2:2.3,0,6.283);ctx.fill();ctx.stroke()}}
-  for(const p of G.fxp){ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fill()}ctx.globalAlpha=1;
+    else{if(b.shell){ctx.save();ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.x-b.vx*.05,b.y-b.vy*.05);ctx.stroke();ctx.restore()}
+      ctx.beginPath();ctx.arc(b.x,b.y,b.shell?4:b.dmg>40?3.2:2.3,0,6.283);ctx.fill();ctx.stroke()}}
+  for(const p of G.fxp){const k=Math.max(0,p.life/p.max);ctx.globalAlpha=p.sm?k*.4:k;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.sm?p.r+p.g*(1-k):p.r,0,6.283);ctx.fill()}ctx.globalAlpha=1;
   if(night){ctx.fillStyle='rgba(12,20,48,.36)';ctx.fillRect(-BX,0,W+BX*2,H);ctx.globalCompositeOperation='lighter';
     const beam=(x,y,a)=>{const gr=ctx.createRadialGradient(x,y,4,x,y,170);gr.addColorStop(0,'rgba(255,240,190,.2)');gr.addColorStop(1,'rgba(255,240,190,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(x,y);ctx.arc(x,y,170,a-.3,a+.3);ctx.fill()};
     for(let i=0;i<nt;i++){const p=turPos(i);beam(p.x,p.y,G.tur[i].a)}beam(CMD.x,CMD.y,G.cmdA);ctx.globalCompositeOperation='source-over'}
   if(G.ptr.on&&!G.aim){const x=G.ptr.x,y=Math.min(G.ptr.y,CMD.y-4);ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,G.wpn=='mortar'?36:15,0,6.283);ctx.moveTo(x-21,y);ctx.lineTo(x-9,y);ctx.moveTo(x+9,y);ctx.lineTo(x+21,y);ctx.moveTo(x,y-21);ctx.lineTo(x,y-9);ctx.moveTo(x,y+9);ctx.lineTo(x,y+21);ctx.stroke()}
   for(const t of G.txt){ctx.globalAlpha=Math.max(0,t.a);label(t.t,t.x,t.y,t.s,t.c)}ctx.globalAlpha=1;
-  // toasts in screen space, at the top of the field
-  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.font='800 12.5px Nunito,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';let ty=oy+(EW+30)*vs;
+  // screen space: vignette, then toasts near the top of the field
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  {const v=ctx.createRadialGradient(cw/2,ch/2,Math.min(cw,ch)*.45,cw/2,ch/2,Math.max(cw,ch)*.75);v.addColorStop(0,'rgba(10,18,32,0)');v.addColorStop(1,'rgba(10,18,32,.38)');ctx.fillStyle=v;ctx.fillRect(0,0,cw,ch)}ctx.font='800 12.5px Nunito,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';let ty=oy+(EW+30)*vs;
   for(const t of G.toasts){const a=Math.min(1,t.life),w=Math.min(cw-16,ctx.measureText(t.msg).width+22);ctx.globalAlpha=a*.88;ctx.fillStyle='#16263c';rr(ctx,cw/2-w/2,ty-12,w,24,12);ctx.fill();ctx.globalAlpha=a;ctx.fillStyle='#fff';ctx.fillText(t.msg,cw/2,ty+.5,cw-30);ty+=29}
   ctx.globalAlpha=1;
 }
